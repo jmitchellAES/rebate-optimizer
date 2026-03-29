@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rebate Optimizer (Chicago) – AES</title>
+  <style>
+    :root{
+      --bg:#0b1220; --panel:#111a2f; --panel2:#0f172a; --text:#e6edf7; --muted:#a8b3cf;
+      --accent:#4fd1c5; --accent2:#60a5fa; --danger:#fb7185; --ok:#22c55e; --warn:#fbbf24;
+      --border:rgba(255,255,255,.10);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    html,body{margin:0;background:linear-gradient(180deg,#070b14 0%, #0b1220 35%, #070b14 100%);color:var(--text);font-family:var(--sans);}
+    a{color:var(--accent2)}
+    .wrap{max-width:1200px;margin:28px auto;padding:0 18px 40px;}
+    .title{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+    h1{margin:0;font-size:24px;letter-spacing:.2px}
+    .sub{color:var(--muted);font-size:13px;margin-top:6px;line-height:1.35}
+    .pill{display:inline-flex;gap:8px;align-items:center;background:rgba(255,255,255,.06);border:1px solid var(--border);
+      padding:8px 10px;border-radius:999px;font-size:12px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;margin-top:16px}
+    @media (max-width: 980px){ .grid{grid-template-columns:1fr} }
+    .card{background:rgba(17,26,47,.85);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+    .card .hd{padding:14px 14px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .card .hd h2{margin:0;font-size:14px;letter-spacing:.2px}
+    .card .bd{padding:14px}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .row > *{flex:1 1 160px}
+    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+    input,select,textarea{
+      width:100%; box-sizing:border-box; border-radius:10px; border:1px solid var(--border);
+      background:rgba(0,0,0,.25); color:var(--text); padding:10px 10px; font-size:13px;
+      outline:none;
+    }
+    textarea{min-height:110px;font-family:var(--mono);font-size:12px;line-height:1.35}
+    input:focus,select:focus,textarea:focus{border-color:rgba(79,209,197,.55); box-shadow:0 0 0 3px rgba(79,209,197,.15)}
+    .btnbar{display:flex;gap:10px;flex-wrap:wrap}
+    button{
+      border:1px solid var(--border);
+      background:linear-gradient(180deg,rgba(79,209,197,.22),rgba(79,209,197,.10));
+      color:var(--text);
+      padding:10px 12px;border-radius:12px;font-size:13px;cursor:pointer;
+    }
+    button.secondary{background:rgba(255,255,255,.06)}
+    button.danger{background:rgba(251,113,133,.14)}
+    button:active{transform:translateY(1px)}
+    .tablewrap{overflow:auto;border-radius:12px;border:1px solid var(--border)}
+    table{width:100%;border-collapse:collapse;min-width:980px;background:rgba(0,0,0,.18)}
+    th,td{padding:10px;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:top}
+    th{font-size:12px;color:var(--muted);text-align:left;position:sticky;top:0;background:rgba(10,16,30,.90);backdrop-filter: blur(6px)}
+    td input, td select{padding:8px;border-radius:10px}
+    .tiny{font-size:11px;color:var(--muted)}
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;font-size:12px;border:1px solid var(--border);background:rgba(255,255,255,.06)}
+    .badge.ok{border-color:rgba(34,197,94,.45);background:rgba(34,197,94,.12)}
+    .badge.warn{border-color:rgba(251,191,36,.45);background:rgba(251,191,36,.12)}
+    .badge.bad{border-color:rgba(251,113,133,.45);background:rgba(251,113,133,.12)}
+    .results{display:grid;grid-template-columns:1fr;gap:10px}
+    .result{
+      border:1px solid var(--border);border-radius:14px;background:rgba(0,0,0,.18);
+      padding:12px 12px 10px
+    }
+    .result .top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .result .name{font-weight:650}
+    .kpis{display:grid;grid-template-columns:repeat(5, minmax(110px,1fr));gap:10px;margin-top:10px}
+    @media (max-width: 980px){ .kpis{grid-template-columns:repeat(2, minmax(140px,1fr))} }
+    .kpi{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px}
+    .kpi .l{font-size:11px;color:var(--muted)}
+    .kpi .v{font-size:14px;margin-top:4px;font-weight:650}
+    .footnote{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.35}
+    .mono{font-family:var(--mono)}
+    .sep{height:1px;background:rgba(255,255,255,.08);margin:10px 0}
+    .rightnote{color:var(--muted);font-size:12px}
+    .flex{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text)}
+    .check input{width:auto}
+    .best{outline:2px solid rgba(79,209,197,.55); box-shadow:0 0 0 4px rgba(79,209,197,.14)}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="title">
+    <div>
+      <h1>Rebate Optimizer (Chicago)</h1>
+      <div class="sub">
+        Enter existing vs proposed fixtures → calculates energy savings + runs all rebate scenarios across 3 programs → ranks best option.
+      </div>
+    </div>
+    <div class="pill">
+      <span class="mono">v1.0</span>
+      <span>Static • GitHub Pages-ready</span>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- LEFT: Inputs -->
+    <div class="card">
+      <div class="hd">
+        <h2>Project Inputs</h2>
+        <div class="rightnote">Tip: Add rows for each fixture type / area.</div>
+      </div>
+      <div class="bd">
+        <div class="row">
+          <div>
+            <label>Annual operating hours (default)</label>
+            <input id="defaultHours" type="number" value="3000" min="0" step="50"/>
+          </div>
+          <div>
+            <label>Electric rate ($/kWh)</label>
+            <input id="rateKwh" type="number" value="0.14" min="0" step="0.01"/>
+          </div>
+          <div>
+            <label>Total fixture/material cost ($)</label>
+            <input id="projectCost" type="number" value="0" min="0" step="50"/>
+          </div>
+          <div>
+            <label>Install / labor cost ($)</label>
+            <input id="laborCost" type="number" value="0" min="0" step="50"/>
+          </div>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="flex">
+          <div class="badge">Fixtures table</div>
+          <div class="tiny">Existing watts & Proposed watts drive kWh savings. Rebate rules use category + proposed watts.</div>
+        </div>
+
+        <div style="margin-top:10px" class="tablewrap">
+          <table id="fixtureTable">
+            <thead>
+              <tr>
+                <th style="min-width:180px">Line name</th>
+                <th style="min-width:140px">Category</th>
+                <th>Qty</th>
+                <th>Existing W</th>
+                <th>Proposed W</th>
+                <th>Hours/yr</th>
+                <th>Controls? (Y/N)</th>
+                <th>Notes</th>
+                <th style="width:90px">Remove</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div style="margin-top:12px" class="btnbar">
+          <button id="addRow">+ Add fixture row</button>
+          <button class="secondary" id="loadExample">Load example</button>
+          <button class="secondary" id="clearRows">Clear rows</button>
+        </div>
+
+        <div class="footnote">
+          This tool estimates rebates based on the rule tables you configure. Utility programs can change; verify final eligibility and funding.
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Programs + Results -->
+    <div class="card">
+      <div class="hd">
+        <h2>Programs + Optimization</h2>
+        <div class="badge warn">Runs all allowed combinations</div>
+      </div>
+      <div class="bd">
+        <div class="flex" style="margin-bottom:10px">
+          <div class="check"><input type="checkbox" id="allowCombos" checked> <label style="margin:0">Allow stacking combinations (if permitted by config)</label></div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Program 1</label>
+            <select id="p1Enabled"></select>
+          </div>
+          <div>
+            <label>Program 2</label>
+            <select id="p2Enabled"></select>
+          </div>
+          <div>
+            <label>Program 3</label>
+            <select id="p3Enabled"></select>
+          </div>
+        </div>
+
+        <div class="sep"></div>
+
+        <label class="mono">Program config (JSON) – edit rules here</label>
+        <textarea id="programConfig"></textarea>
+        <div class="tiny">You can paste your real incentive tables here once. The optimizer will immediately use them.</div>
+
+        <div style="margin-top:12px" class="btnbar">
+          <button id="run">Optimize rebates</button>
+          <button class="secondary" id="copyBest">Copy best summary</button>
+          <button class="secondary" id="exportCsv">Export results CSV</button>
+          <button class="danger" id="resetCfg">Reset config</button>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="flex">
+          <div id="status" class="badge">Ready</div>
+          <div class="tiny" id="calcSummary"></div>
+        </div>
+
+        <div style="margin-top:10px" class="results" id="results"></div>
+
+        <div class="footnote">
+          <div><span class="mono">ComEd Instant Discounts (Lighting) 2026</span> starter rules are preloaded from the 2026 guide (valid Jan 1–Dec 31, 2026). Offers subject to change. [2](https://azure-na-assets.contentstack.com/v3/assets/blt3ebb3fed6084be2a/bltcf6ddb048bebbdd6/2026%20ID%20Lighting%20Guide.pdf)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/**
+ * DATA MODEL
+ * - Three programs with rule types:
+ *   1) "per_item_table": category + proposedW → incentive per fixture/lamp
+ *   2) "kwh_rate": incentive = kWhSaved * $/kWhSaved (with caps)
+ *   3) "adder_controls": optional adders when Controls == Yes
+ *
+ * NOTE: You can modify config JSON freely. Keep it valid JSON.
+ */
+
+// --- Default config with Program 1 preloaded using ComEd Instant Discounts 2026 starter rules ---
+// Source: 2026 ID Lighting Guide (examples like interior DLC fixtures by watt band) [2](https://azure-na-assets.contentstack.com/v3/assets/blt3ebb3fed6084be2a/bltcf6ddb048bebbdd6/2026%20ID%20Lighting%20Guide.pdf)
+const DEFAULT_CONFIG = {
+  currency: "USD",
+  programs: [
+    {
+      id: "comed_instant_2026",
+      name: "ComEd Instant Discounts (Lighting) – 2026",
+      enabled: true,
+      stackableWith: [], // set to ["program2","program3"] if you KNOW stacking is allowed
+      ruleType: "per_item_table",
+      notes: "Starter table based on ComEd 2026 Instant Discounts Lighting guide. Verify eligibility/funding.",
+      tables: {
+        // Category keys must match the "Category" dropdown in fixture rows
+        "INTERIOR_DLC_FIXTURE": [
+          { minW: 0,   maxW: 60,  incentive: 30 },
+          { minW: 60,  maxW: 120, incentive: 80 },
+          { minW: 120, maxW: 200, incentive: 160 },
+          { minW: 200, maxW: 300, incentive: 300 },
+          { minW: 300, maxW: 500, incentive: 500 }
+        ],
+        "EXTERIOR_DLC_FIXTURE": [
+          { minW: 0,   maxW: 60,  incentive: 37 },
+          { minW: 60,  maxW: 120, incentive: 100 },
+          { minW: 120, maxW: 200, incentive: 200 },
+          { minW: 200, maxW: 300, incentive: 350 },
+          { minW: 300, maxW: 500, incentive: 550 }
+        ],
+        "TLED_LINEAR_LAMP": [
+          // Simplified: many linear types show $7/lamp, Type C $10/lamp in the guide [2](https://azure-na-assets.contentstack.com/v3/assets/blt3ebb3fed6084be2a/bltcf6ddb048bebbdd6/2026%20ID%20Lighting%20Guide.pdf)
+          { any: true, incentive: 7 }
+        ],
+        "TLED_TYPE_C": [
+          { any: true, incentive: 10 }
+        ],
+        "PIN_BASE_LED": [
+          { any: true, incentive: 10 }
+        ]
+      },
+      // Optional controls adder inside this program (set 0 if none)
+      controlsAdderPerUnit: 0
+    },
+    {
+      id: "program2",
+      name: "Program 2 (configure me)",
+      enabled: true,
+      stackableWith: ["program3"], // example: allow stacking w/ program3; edit as needed
+      ruleType: "kwh_rate",
+      notes: "Example: incentive based on verified kWh savings. Replace with your real program rules/worksheet values.",
+      kwhRate: 0.00,              // $ per kWh saved
+      maxPercentOfProjectCost: 1, // 1.0 = 100%
+      flatCap: null               // e.g. 20000
+    },
+    {
+      id: "program3",
+      name: "Program 3 (configure me)",
+      enabled: true,
+      stackableWith: ["program2"],
+      ruleType: "adder_controls",
+      notes: "Example: adders for network/LLLC/controls per controlled fixture. Replace with your real values.",
+      adderPerControlledFixture: 0
+    }
+  ],
+  categories: [
+    { key: "INTERIOR_DLC_FIXTURE", label: "Interior DLC fixture (Instant Discounts style)" },
+    { key: "EXTERIOR_DLC_FIXTURE", label: "Exterior DLC fixture (Instant Discounts style)" },
+    { key: "TLED_LINEAR_LAMP", label: "Linear LED lamp (TLED)" },
+    { key: "TLED_TYPE_C", label: "Linear LED lamp (Type C)" },
+    { key: "PIN_BASE_LED", label: "Pin-base LED" },
+    { key: "OTHER", label: "Other / custom (use Program 2/3 rules)" }
+  ]
+};
+
+// ---------------- UI helpers ----------------
+const $ = (id)=>document.getElementById(id);
+
+function money(x){
+  if(!isFinite(x)) return "$0";
+  const s = (Math.round((x+Number.EPSILON)*100)/100).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+  return "$"+s;
+}
+function num(x){ return isFinite(+x) ? +x : 0; }
+
+function setStatus(text, kind="neutral"){
+  const el = $("status");
+  el.textContent = text;
+  el.className = "badge " + (kind==="ok"?"ok":kind==="warn"?"warn":kind==="bad"?"bad":"");
+}
+
+function initProgramSelectors(cfg){
+  const opts = [
+    {v:"on", t:"Enabled"},
+    {v:"off", t:"Disabled"}
+  ];
+  ["p1Enabled","p2Enabled","p3Enabled"].forEach((id, i)=>{
+    const sel = $(id);
+    sel.innerHTML = "";
+    opts.forEach(o=>{
+      const op = document.createElement("option");
+      op.value = o.v; op.textContent = o.t;
+      sel.appendChild(op);
+    });
+    sel.value = cfg.programs[i].enabled ? "on" : "off";
+    sel.onchange = ()=>{
+      cfg.programs[i].enabled = sel.value==="on";
+      $("programConfig").value = JSON.stringify(cfg, null, 2);
+    }
+  });
+}
+
+function rowTemplate(catOptions){
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td><input placeholder="e.g., 2x4 Troffer" value=""></td>
+    <td>
+      <select>
+        ${catOptions.map(c=>`<option value="${c.key}">${c.label}</option>`).join("")}
+      </select>
+    </td>
+    <td><input type="number" value="1" min="0" step="1"></td>
+    <td><input type="number" value="0" min="0" step="1"></td>
+    <td><input type="number" value="0" min="0" step="1"></td>
+    <td><input type="number" value="${$("defaultHours").value||3000}" min="0" step="50"></td>
+    <td>
+      <select>
+        <option value="N">N</option>
+        <option value="Y">Y</option>
+      </select>
+    </td>
+    <td><input placeholder="optional" value=""></td>
+    <td><button class="danger">X</button></td>
+  `;
+  tr.querySelector("button").onclick = ()=> tr.remove();
+  return tr;
+}
+
+function getRows(){
+  const tbody = $("fixtureTable").querySelector("tbody");
+  const rows = [...tbody.querySelectorAll("tr")].map(tr=>{
+    const cells = tr.querySelectorAll("td");
+    const name = cells[0].querySelector("input").value.trim() || "Line";
+    const category = cells[1].querySelector("select").value;
+    const qty = num(cells[2].querySelector("input").value);
+    const wOld = num(cells[3].querySelector("input").value);
+    const wNew = num(cells[4].querySelector("input").value);
+    const hours = num(cells[5].querySelector("input").value);
+    const controls = cells[6].querySelector("select").value;
+    const notes = cells[7].querySelector("input").value.trim();
+    return { name, category, qty, wOld, wNew, hours, controls, notes };
+  }).filter(r => r.qty>0);
+  return rows;
+}
+
+// ---------------- Rebate engine ----------------
+function calcEnergy(rows, rateKwh){
+  let kwhSaved=0, kwReduction=0;
+  rows.forEach(r=>{
+    const dW = (r.wOld - r.wNew);
+    const dKW = dW/1000;
+    kwReduction += (dKW * r.qty);
+    kwhSaved += (dW * r.qty * r.hours)/1000;
+  });
+  const annual$ = kwhSaved * rateKwh;
+  return { kwhSaved, kwReduction, annual$ };
+}
+
+function incentiveForProgram(program, rows, projectCostTotal, energy){
+  let rebate = 0;
+
+  if(program.ruleType === "per_item_table"){
+    const tables = program.tables || {};
+    rows.forEach(r=>{
+      const rules = tables[r.category];
+      if(!rules) return;
+
+      // special "any" rule (flat per unit)
+      const anyRule = rules.find(x=>x.any);
+      if(anyRule){
+        rebate += (anyRule.incentive||0) * r.qty;
+        return;
+      }
+
+      // watt-band matching against proposed watts
+      const w = r.wNew;
+      const match = rules.find(x => w > x.minW && w <= x.maxW) || rules.find(x => w >= x.minW && w <= x.maxW);
+      if(match){
+        rebate += (match.incentive||0) * r.qty;
+      }
+    });
+
+    // optional controls adder
+    const adder = num(program.controlsAdderPerUnit);
+    if(adder>0){
+      rows.forEach(r=>{
+        if(r.controls==="Y") rebate += adder * r.qty;
+      });
+    }
+  }
+
+  if(program.ruleType === "kwh_rate"){
+    const rate = num(program.kwhRate);
+    rebate = energy.kwhSaved * rate;
+    const maxPct = (program.maxPercentOfProjectCost==null) ? 1 : num(program.maxPercentOfProjectCost);
+    const capByCost = projectCostTotal * maxPct;
+    rebate = Math.min(rebate, capByCost);
+    if(program.flatCap!=null && isFinite(program.flatCap)){
+      rebate = Math.min(rebate, num(program.flatCap));
+    }
+    if(rebate < 0) rebate = 0;
+  }
+
+  if(program.ruleType === "adder_controls"){
+    const adder = num(program.adderPerControlledFixture);
+    if(adder>0){
+      rows.forEach(r=>{
+        if(r.controls==="Y") rebate += adder * r.qty;
+      });
+    }
+  }
+
+  return rebate;
+}
+
+function allowedCombo(programs, combo){
+  // combo is array of program ids
+  // If two programs are both present, they must allow each other (via stackableWith), otherwise reject.
+  for(let i=0;i<combo.length;i++){
+    for(let j=i+1;j<combo.length;j++){
+      const a = programs.find(p=>p.id===combo[i]);
+      const b = programs.find(p=>p.id===combo[j]);
+      const aAllows = (a.stackableWith||[]).includes(b.id);
+      const bAllows = (b.stackableWith||[]).includes(a.id);
+      if(!(aAllows && bAllows)) return false;
+    }
+  }
+  return true;
+}
+
+function powerSet(arr){
+  const res = [[]];
+  for(const el of arr){
+    const n = res.length;
+    for(let i=0;i<n;i++) res.push(res[i].concat(el));
+  }
+  return res;
+}
+
+function runOptimizer(cfg){
+  const rows = getRows();
+  if(rows.length===0){
+    setStatus("Add at least one fixture row.", "warn");
+    return {results:[], best:null, rows:[]};
+  }
+
+  const rateKwh = num($("rateKwh").value);
+  const projectCost = num($("projectCost").value);
+  const laborCost  = num($("laborCost").value);
+  const projectCostTotal = projectCost + laborCost;
+
+  const energy = calcEnergy(rows, rateKwh);
+
+  const enabledPrograms = cfg.programs.filter(p=>p.enabled);
+
+  const allowCombos = $("allowCombos").checked;
+
+  const combos = allowCombos
+    ? powerSet(enabledPrograms.map(p=>p.id)).filter(c=>c.length>0)
+    : enabledPrograms.map(p=>[p.id]);
+
+  const validCombos = combos.filter(c => allowCombos ? allowedCombo(enabledPrograms, c) : true);
+
+  const results = validCombos.map(combo=>{
+    let rebateTotal = 0;
+    const parts = combo.map(id=>{
+      const p = enabledPrograms.find(x=>x.id===id);
+      const val = incentiveForProgram(p, rows, projectCostTotal, energy);
+      rebateTotal += val;
+      return { id, name:p.name, rebate: val };
+    });
+
+    const netCost = Math.max(projectCostTotal - rebateTotal, 0);
+    const paybackYears = energy.annual$>0 ? (netCost / energy.annual$) : null;
+
+    return {
+      combo,
+      label: parts.map(x=>x.name).join(" + "),
+      rebateTotal,
+      netCost,
+      paybackYears,
+      energy,
+      breakdown: parts
+    };
+  }).sort((a,b)=>{
+    // primary: lowest net cost, secondary: highest rebate, tertiary: lowest payback
+    if(a.netCost !== b.netCost) return a.netCost - b.netCost;
+    if(b.rebateTotal !== a.rebateTotal) return b.rebateTotal - a.rebateTotal;
+    const ap = (a.paybackYears==null)?1e9:a.paybackYears;
+    const bp = (b.paybackYears==null)?1e9:b.paybackYears;
+    return ap - bp;
+  });
+
+  const best = results[0] || null;
+  return {results, best, rows, energy, projectCostTotal};
+}
+
+function renderResults(payload){
+  const {results, best, energy, projectCostTotal} = payload;
+  const box = $("results");
+  box.innerHTML = "";
+
+  if(!results.length){
+    $("calcSummary").textContent = "";
+    return;
+  }
+
+  $("calcSummary").textContent =
+    `Project cost: ${money(projectCostTotal)} • kWh saved: ${Math.round(energy.kwhSaved).toLocaleString()} • $/yr saved: ${money(energy.annual$)} • Scenarios: ${results.length}`;
+
+  results.forEach((r, idx)=>{
+    const div = document.createElement("div");
+    div.className = "result" + (best && r.label===best.label ? " best" : "");
+    const tag = (idx===0) ? `<span class="badge ok">Best</span>` : (idx===1) ? `<span class="badge warn">Runner-up</span>` : `<span class="badge">Option</span>`;
+
+    div.innerHTML = `
+      <div class="top">
+        <div>
+          <div class="name">${tag} ${r.label}</div>
+          <div class="tiny">Includes: ${r.breakdown.map(b=>`${b.name} (${money(b.rebate)})`).join(" • ")}</div>
+        </div>
+        <div class="tiny mono">Scenario: ${r.combo.join("+")}</div>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi"><div class="l">Total rebate</div><div class="v">${money(r.rebateTotal)}</div></div>
+        <div class="kpi"><div class="l">Net cost</div><div class="v">${money(r.netCost)}</div></div>
+        <div class="kpi"><div class="l">kWh saved / yr</div><div class="v">${Math.round(r.energy.kwhSaved).toLocaleString()}</div></div>
+        <div class="kpi"><div class="l">$ saved / yr</div><div class="v">${money(r.energy.annual$)}</div></div>
+        <div class="kpi"><div class="l">Simple payback</div><div class="v">${r.paybackYears==null ? "—" : (Math.round(r.paybackYears*100)/100)+" yrs"}</div></div>
+      </div>
+    `;
+    box.appendChild(div);
+  });
+
+  setStatus(best ? "Optimization complete" : "No valid scenarios", best ? "ok" : "warn");
+}
+
+function bestSummaryText(payload){
+  const {best, projectCostTotal} = payload;
+  if(!best) return "";
+  const b = best;
+  const pay = b.paybackYears==null ? "N/A" : (Math.round(b.paybackYears*100)/100)+" years";
+  return [
+    `Best rebate scenario: ${b.label}`,
+    `Project cost (materials+labor): ${money(projectCostTotal)}`,
+    `Total rebate: ${money(b.rebateTotal)}`,
+    `Net cost after rebates: ${money(b.netCost)}`,
+    `Annual energy savings: ${Math.round(b.energy.kwhSaved).toLocaleString()} kWh (~${money(b.energy.annual$)}/yr)`,
+    `Simple payback: ${pay}`,
+    `Breakdown: ${b.breakdown.map(x=>`${x.name}=${money(x.rebate)}`).join("; ")}`
+  ].join("\n");
+}
+
+function toCsv(payload){
+  const {results, projectCostTotal} = payload;
+  const headers = ["Scenario","Total Rebate","Net Cost","kWh Saved","$/yr Saved","Payback (yrs)","Project Cost"];
+  const rows = results.map(r=>[
+    `"${r.label.replaceAll('"','""')}"`,
+    r.rebateTotal.toFixed(2),
+    r.netCost.toFixed(2),
+    r.energy.kwhSaved.toFixed(2),
+    r.energy.annual$.toFixed(2),
+    (r.paybackYears==null?"":r.paybackYears.toFixed(4)),
+    projectCostTotal.toFixed(2)
+  ].join(","));
+  return headers.join(",") + "\n" + rows.join("\n");
+}
+
+// -------------- init --------------
+let CFG = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+$("programConfig").value = JSON.stringify(CFG, null, 2);
+initProgramSelectors(CFG);
+
+function rebuildCategoryOptions(){
+  // nothing dynamic beyond config in this version
+}
+
+function addRow(){
+  const tbody = $("fixtureTable").querySelector("tbody");
+  tbody.appendChild(rowTemplate(CFG.categories));
+}
+$("addRow").onclick = addRow;
+
+$("defaultHours").onchange = ()=>{
+  // Only update empty hours fields for convenience (keep explicit overrides)
+  const tbody = $("fixtureTable").querySelector("tbody");
+  [...tbody.querySelectorAll("tr")].forEach(tr=>{
+    const hoursInput = tr.querySelectorAll("td")[5].querySelector("input");
+    if(num(hoursInput.value) === 0) hoursInput.value = $("defaultHours").value;
+  });
+};
+
+$("loadExample").onclick = ()=>{
+  const tbody = $("fixtureTable").querySelector("tbody");
+  tbody.innerHTML = "";
+  addRow(); addRow();
+  const trs = tbody.querySelectorAll("tr");
+
+  // Example row 1: interior fixture
+  trs[0].querySelectorAll("td")[0].querySelector("input").value = "2x4 Troffers";
+  trs[0].querySelectorAll("td")[1].querySelector("select").value = "INTERIOR_DLC_FIXTURE";
+  trs[0].querySelectorAll("td")[2].querySelector("input").value = "40";
+  trs[0].querySelectorAll("td")[3].querySelector("input").value = "96";
+  trs[0].querySelectorAll("td")[4].querySelector("input").value = "40";
+  trs[0].querySelectorAll("td")[5].querySelector("input").value = "3000";
+  trs[0].querySelectorAll("td")[6].querySelector("select").value = "N";
+
+  // Example row 2: exterior fixture
+  trs[1].querySelectorAll("td")[0].querySelector("input").value = "Wall Packs";
+  trs[1].querySelectorAll("td")[1].querySelector("select").value = "EXTERIOR_DLC_FIXTURE";
+  trs[1].querySelectorAll("td")[2].querySelector("input").value = "12";
+  trs[1].querySelectorAll("td")[3].querySelector("input").value = "150";
+  trs[1].querySelectorAll("td")[4].querySelector("input").value = "80";
+  trs[1].querySelectorAll("td")[5].querySelector("input").value = "4200";
+  trs[1].querySelectorAll("td")[6].querySelector("select").value = "Y";
+
+  setStatus("Example loaded", "ok");
+};
+
+$("clearRows").onclick = ()=>{
+  $("fixtureTable").querySelector("tbody").innerHTML = "";
+  setStatus("Rows cleared", "warn");
+};
+
+$("programConfig").onchange = ()=>{
+  try{
+    const parsed = JSON.parse($("programConfig").value);
+    CFG = parsed;
+    initProgramSelectors(CFG);
+    setStatus("Config loaded", "ok");
+  }catch(e){
+    setStatus("Config JSON invalid", "bad");
+  }
+};
+
+$("resetCfg").onclick = ()=>{
+  CFG = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+  $("programConfig").value = JSON.stringify(CFG, null, 2);
+  initProgramSelectors(CFG);
+  setStatus("Config reset", "warn");
+};
+
+let LAST = null;
+
+$("run").onclick = ()=>{
+  try{
+    // ensure CFG is current textarea
+    CFG = JSON.parse($("programConfig").value);
+  }catch(e){
+    setStatus("Fix config JSON first", "bad");
+    return;
+  }
+  LAST = runOptimizer(CFG);
+  renderResults(LAST);
+};
+
+$("copyBest").onclick = async ()=>{
+  if(!LAST || !LAST.best){ setStatus("Run optimizer first", "warn"); return; }
+  const text = bestSummaryText(LAST);
+  try{
+    await navigator.clipboard.writeText(text);
+    setStatus("Best summary copied", "ok");
+  }catch{
+    setStatus("Copy failed (browser)", "warn");
+    alert(text);
+  }
+};
+
+$("exportCsv").onclick = ()=>{
+  if(!LAST || !LAST.results.length){ setStatus("Run optimizer first", "warn"); return; }
+  const csv = toCsv(LAST);
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "rebate-optimizer-results.csv";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  setStatus("CSV exported", "ok");
+};
+
+// start with one row
+addRow();
+setStatus("Ready", "ok");
+</script>
+</body>
+</html>
