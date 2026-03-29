@@ -17,6 +17,12 @@
       --soft:#f8fafc;
       --muted:#556;
       --shadow: 0 8px 26px rgba(0,0,0,.08);
+      --okbg:#ecfdf5;
+      --okbd:#bbf7d0;
+      --oktx:#166534;
+      --warnbg:#fffbeb;
+      --warnbd:#fde68a;
+      --warntx:#92400e;
     }
     body{
       font-family: Arial, sans-serif;
@@ -26,7 +32,7 @@
       color:#111;
     }
     .container{
-      max-width: 1140px;
+      max-width: 1400px;
       margin:auto;
       background: var(--card);
       padding:24px;
@@ -34,11 +40,11 @@
       box-shadow: var(--shadow);
     }
 
-    /* Header row mirrors your ROI calculator layout: logo left, centered title, spacer right */
+    /* Header mirrors your ROI tool: logo left, centered title, spacer right */
     .header{
       display:flex;
       align-items:center;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
       gap: 12px;
     }
     .logo{
@@ -64,12 +70,19 @@
       .header{ flex-direction:column; align-items:center; gap:10px; }
       .header-spacer{ display:none; }
     }
-
     .subline{
-      margin:-2px 0 16px 0;
+      margin: 0 0 18px 0;
       font-size: 12px;
       color: #555;
       text-align:center;
+      line-height:1.35;
+    }
+
+    /* Vertical flow: Inputs -> Fixtures -> Results */
+    .stack{
+      display:flex;
+      flex-direction:column;
+      gap: 18px;
     }
 
     label{ font-size:13px; font-weight:bold; }
@@ -83,15 +96,10 @@
       background:#fff;
       box-sizing: border-box;
     }
-
-    .grid2{
-      display:grid;
-      grid-template-columns: 1.15fr .85fr;
-      gap: 14px;
-      align-items:start;
-    }
-    @media (max-width: 980px){
-      .grid2{ grid-template-columns: 1fr; }
+    input:focus, select:focus{
+      outline:none;
+      border-color:#a7c7d4;
+      box-shadow: 0 0 0 3px rgba(10,92,125,.12);
     }
 
     .panel{
@@ -99,15 +107,14 @@
       background: var(--soft);
       border-radius: 12px;
       padding: 14px;
-      margin-bottom: 14px;
     }
-
     .panelHeader{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:10px;
       margin-bottom:10px;
+      flex-wrap:wrap;
     }
     .panelHeader h3{
       margin:0;
@@ -124,11 +131,38 @@
       white-space:nowrap;
     }
 
+    /* Inputs grid */
+    .gridInputs{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      align-items:start;
+    }
+    @media (max-width: 1100px){
+      .gridInputs{ grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px){
+      .gridInputs{ grid-template-columns: 1fr; }
+    }
+    .span2{ grid-column: span 2; }
+    .span4{ grid-column: span 4; }
+    @media (max-width: 1100px){ .span4{ grid-column: span 2; } }
+    @media (max-width: 640px){ .span2, .span4{ grid-column: span 1; } }
+
+    .small{
+      font-size: 12px;
+      color: #555;
+      margin-top: 6px;
+      line-height:1.35;
+    }
+
+    /* Buttons */
     .btnRow{
       display:flex;
       gap:10px;
       flex-wrap:wrap;
       margin-top: 6px;
+      align-items:center;
     }
     button{
       padding: 10px 14px;
@@ -153,13 +187,7 @@
     }
     .calcBtn svg{ width:16px; height:16px; }
 
-    .small{
-      font-size: 12px;
-      color: #555;
-      margin-top: 6px;
-      line-height:1.35;
-    }
-
+    /* Table */
     .tablewrap{
       overflow:auto;
       border-radius: 12px;
@@ -169,7 +197,7 @@
     table{
       width:100%;
       border-collapse: collapse;
-      min-width: 980px;
+      min-width: 1280px; /* wider for readability */
     }
     th, td{
       border: 1px solid #ccc;
@@ -177,8 +205,14 @@
       text-align:left;
       vertical-align: top;
       font-size: 13px;
+      background:#fff;
     }
-    th{ background:#f0f3f6; }
+    th{
+      background:#f0f3f6;
+      position: sticky;   /* polish: sticky header */
+      top: 0;
+      z-index: 2;
+    }
     td input, td select{
       margin:0;
       padding: 8px;
@@ -186,6 +220,14 @@
       border: 1px solid var(--border);
     }
 
+    .cellHint{
+      font-size:11px;
+      color:#667;
+      margin-top:6px;
+      line-height:1.25;
+    }
+
+    /* Status */
     .status{
       display:none;
       margin-top:12px;
@@ -202,21 +244,38 @@
       color:#92400e;
     }
 
+    /* Results */
+    .summaryLine{
+      margin-top: 8px;
+      font-size:12px;
+      color:#555;
+      line-height:1.35;
+    }
+    .recommend{
+      margin-top:12px;
+      padding: 10px;
+      border-radius: 12px;
+      border:1px solid #cfe7f1;
+      background:#f8fbfd;
+      color:#0b3a4f;
+      font-size:13px;
+      font-weight:700;
+    }
     .resultCard{
       border: 1px solid var(--border);
       background:#fff;
       border-radius: 12px;
       padding: 12px;
-      margin-top: 10px;
+      margin-top: 12px;
       box-shadow: 0 4px 14px rgba(0,0,0,.05);
     }
-    .resultTop{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:flex-start;
-      margin-bottom:10px;
+    .resultCard.best{
+      border-color: var(--okbd);
+      background: linear-gradient(180deg, #ffffff 0%, var(--okbg) 140%);
+    }
+    .resultCard.runner{
+      border-color: var(--warnbd);
+      background: linear-gradient(180deg, #ffffff 0%, var(--warnbg) 140%);
     }
     .tag{
       display:inline-block;
@@ -227,14 +286,16 @@
       border:1px solid var(--border);
       background:#f8fafc;
       color:#0f172a;
+      margin-right:8px;
     }
-    .tag.best{ background:#ecfdf5; border-color:#bbf7d0; color:#166534; }
-    .tag.runner{ background:#fffbeb; border-color:#fde68a; color:#92400e; }
+    .tag.best{ background:var(--okbg); border-color:var(--okbd); color:var(--oktx); }
+    .tag.runner{ background:var(--warnbg); border-color:var(--warnbd); color:var(--warntx); }
 
     .kpiGrid{
       display:grid;
       grid-template-columns: repeat(5, 1fr);
       gap:10px;
+      margin-top:10px;
     }
     @media (max-width: 980px){
       .kpiGrid{ grid-template-columns: 1fr 1fr; }
@@ -251,7 +312,7 @@
     .divider{
       height:1px;
       background:#e5e7eb;
-      margin: 12px 0;
+      margin: 14px 0;
     }
 
     .footer{
@@ -317,138 +378,144 @@
 
 <body>
   <div class="container">
+
     <div class="header">
       <img class="logo" src="aes-logo.png" alt="AES logo">
       <h1 class="page-title">Rebate Optimizer (Chicago)</h1>
       <div class="header-spacer"></div>
     </div>
+
     <div class="subline">
       Compare Instant vs Standard/Small Business vs Instant + Watts Controlled — best + runner‑up only.
     </div>
 
-    <div class="grid2">
+    <div class="stack">
 
-      <!-- LEFT: Inputs -->
-      <div>
-        <div class="panel">
-          <div class="panelHeader">
-            <h3>Project Inputs</h3>
-            <span class="badge">Add multiple fixture types</span>
+      <!-- Project Inputs -->
+      <div class="panel">
+        <div class="panelHeader">
+          <h3>Project Inputs</h3>
+          <span class="badge" id="qtyBadge">Total fixtures: 0</span>
+        </div>
+
+        <div class="gridInputs">
+          <div>
+            <label>Offering type (customer selects)</label>
+            <select id="offeringType">
+              <option value="STANDARD">Standard</option>
+              <option value="SMALL_BIZ">Small Business</option>
+            </select>
           </div>
 
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
-            <div>
-              <label>Offering type (customer selects)</label>
-              <select id="offeringType">
-                <option value="STANDARD">Standard</option>
-                <option value="SMALL_BIZ">Small Business</option>
-              </select>
-            </div>
-            <div>
-              <label>$ per Watt Reduced (STA/SBO)</label>
-              <input id="rateWattReduced" type="number" value="0" min="0" step="0.01">
-            </div>
-            <div>
-              <label>$ per Watt Controlled (STA/SBO)</label>
-              <input id="rateWattControlled" type="number" value="0" min="0" step="0.01">
-            </div>
-            <div>
-              <label>Annual operating hours (default)</label>
-              <input id="defaultHours" type="number" value="3000" min="0" step="50">
-            </div>
-            <div>
-              <label>Electric rate ($/kWh)</label>
-              <input id="rateKwh" type="number" value="0.14" min="0" step="0.01">
-            </div>
-            <div>
-              <label>Total fixture/material cost ($)</label>
-              <input id="projectCost" type="number" value="0" min="0" step="50">
-            </div>
-            <div style="grid-column: span 3;">
-              <label>Install / labor cost ($)</label>
-              <input id="laborCost" type="number" value="0" min="0" step="50">
-            </div>
+          <div>
+            <label>$ per Watt Reduced (STA/SBO)</label>
+            <input id="rateWattReduced" type="number" value="0" min="0" step="0.01" inputmode="decimal">
           </div>
 
-          <div class="small">
-            Watts Reduced = (Existing W − Proposed W) × Qty.
-            Watts Controlled = (Proposed W × Qty) only when Controls = Y.
+          <div>
+            <label>$ per Watt Controlled (STA/SBO)</label>
+            <input id="rateWattControlled" type="number" value="0" min="0" step="0.01" inputmode="decimal">
+          </div>
+
+          <div>
+            <label>Annual operating hours (default)</label>
+            <input id="defaultHours" type="number" value="3000" min="0" step="50" inputmode="numeric">
+          </div>
+
+          <div>
+            <label>Electric rate ($/kWh)</label>
+            <input id="rateKwh" type="number" value="0.14" min="0" step="0.01" inputmode="decimal">
+          </div>
+
+          <div>
+            <label>Total fixture/material cost ($)</label>
+            <input id="projectCost" type="number" value="0" min="0" step="50" inputmode="decimal">
+          </div>
+
+          <div class="span4">
+            <label>Install / labor cost ($)</label>
+            <input id="laborCost" type="number" value="0" min="0" step="50" inputmode="decimal">
           </div>
         </div>
 
-        <div class="panel">
-          <div class="panelHeader">
-            <h3>Fixtures</h3>
-            <span class="badge">Instant Category drives Instant $/unit</span>
-          </div>
-
-          <div class="tablewrap">
-            <table id="fixtureTable">
-              <thead>
-                <tr>
-                  <th style="min-width:170px">Line name</th>
-                  <th style="min-width:200px">Instant Category</th>
-                  <th>Qty</th>
-                  <th>Existing W</th>
-                  <th>Proposed W</th>
-                  <th>Hours/yr</th>
-                  <th>Controls? (Y/N)</th>
-                  <th>Notes</th>
-                  <th style="width:86px">Remove</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-
-          <div class="btnRow" style="margin-top:12px;">
-            <button class="secondary" id="addRow" type="button">+ Add fixture row</button>
-            <button class="danger" id="clearRows" type="button">Clear rows</button>
-          </div>
-
-          <div class="small">
-            This tool estimates rebates; verify eligibility and final program rules.
-          </div>
+        <div class="small">
+          Watts Reduced = (Existing W − Proposed W) × Qty. Watts Controlled = (Proposed W × Qty) only when Controls = Y.
         </div>
       </div>
 
-      <!-- RIGHT: Results -->
-      <div>
-        <div class="panel">
-          <div class="panelHeader">
-            <h3>Results</h3>
-            <button id="calculate" class="calcBtn" type="button" title="Run full calculation">
-              <svg viewBox="0 0 24 24" fill="none">
-                <path d="M5 4h14a2 2 0 0 1 2 2v14l-4-3-4 3-4-3-4 3V6a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.6" />
-                <path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-              </svg>
-              Calculate
-            </button>
-          </div>
-
-          <div id="status" class="status"></div>
-          <div class="small" id="calcSummary"></div>
-
-          <div id="results"></div>
-
-          <div class="divider"></div>
-
-          <div class="btnRow">
-            <button class="secondary" id="btnPdf" type="button">Print / Save PDF</button>
-            <button class="secondary" id="btnEmail" type="button">Email results to yourself</button>
-          </div>
-
-          <div class="small">
-            PDF includes an AES cover letter with your entered contact info.
-          </div>
+      <!-- Fixtures -->
+      <div class="panel">
+        <div class="panelHeader">
+          <h3>Fixtures</h3>
+          <span class="badge">Instant Category drives Instant $/unit</span>
         </div>
 
-        <div class="footer">
-          Prepared by <b>All Electric Sales (AES)</b>
+        <div class="tablewrap">
+          <table id="fixtureTable">
+            <thead>
+              <tr>
+                <th style="min-width:240px">Line name</th>
+                <th style="min-width:300px">Instant Category</th>
+                <th style="min-width:90px">Qty</th>
+                <th style="min-width:120px">Existing W</th>
+                <th style="min-width:120px">Proposed W</th>
+                <th style="min-width:120px">Hours/yr</th>
+                <th style="min-width:130px">Controls? (Y/N)</th>
+                <th style="width:86px">Remove</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="btnRow" style="margin-top:12px;">
+          <button class="secondary" id="addRow" type="button">+ Add fixture row</button>
+          <button class="danger" id="clearRows" type="button">Clear rows</button>
+        </div>
+
+        <div class="small">
+          This tool estimates rebates; verify eligibility and final program rules.
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div class="panel">
+        <div class="panelHeader">
+          <h3>Results</h3>
+          <button id="calculate" class="calcBtn" type="button" title="Run full calculation">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M5 4h14a2 2 0 0 1 2 2v14l-4-3-4 3-4-3-4 3V6a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.6" />
+              <path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+            Calculate
+          </button>
+        </div>
+
+        <div id="status" class="status"></div>
+        <div class="summaryLine" id="calcSummary"></div>
+
+        <div class="recommend" id="recommendLine" style="display:none;"></div>
+
+        <div id="results"></div>
+
+        <div class="divider"></div>
+
+        <div class="btnRow">
+          <button class="secondary" id="btnPdf" type="button">Print / Save PDF</button>
+          <button class="secondary" id="btnEmail" type="button">Email results to yourself</button>
+        </div>
+
+        <div class="small">
+          PDF includes an AES cover letter with your entered contact info.
         </div>
       </div>
 
     </div>
+
+    <div class="footer">
+      Prepared by <b>All Electric Sales (AES)</b>
+    </div>
+
   </div>
 
   <!-- Email Modal -->
@@ -487,21 +554,13 @@
   </div>
 
 <script>
-/**
- * CALCS LOCKED IN: same logic as your working version
- * - Instant only
- * - STA/SBO: watts reduced + watts controlled
- * - Instant + watts controlled (no watts reduced)
- *
- * UI is now matched to your ROI calculator’s white page + AES header style. [1](https://allelectricsales-my.sharepoint.com/personal/jmitchell_allelectricsales_com/Documents/Attachments/Microsoft%20Copilot%20Chat%20Files/index%20(2).html)
- */
-
 (function(){
   const $ = (id)=>document.getElementById(id);
 
-  // *** Do not display this anywhere in UI ***
+  // *** Not displayed anywhere on the page ***
   const BCC_EMAIL = "jmitchell@allelectricsales.com";
 
+  // Instant tables (locked logic)
   const CONFIG = {
     instantTables: {
       "INTERIOR_DLC_FIXTURE": [
@@ -536,70 +595,161 @@
   let LAST_CONTACT = { name:"", company:"", address:"", email:"" };
 
   function num(x){ return isFinite(+x) ? +x : 0; }
+  function clampNonNeg(n){ n = num(n); return n < 0 ? 0 : n; }
   function money(x){
     if(!isFinite(x)) return "$0";
     const s = (Math.round((x+Number.EPSILON)*100)/100).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
     return "$"+s;
   }
-  function showStatus(msg, isWarn=false){
+
+  function showStatus(msg, warn=false){
     const el = $("status");
     el.style.display="block";
-    el.className = "status" + (isWarn ? " warn" : "");
+    el.className = "status" + (warn ? " warn" : "");
     el.textContent = msg;
   }
+
   function clearStatus(){
-    const el = $("status");
-    el.style.display="none";
-    el.textContent="";
+    $("status").style.display="none";
+    $("status").textContent="";
+  }
+
+  function updateQtyBadge(){
+    const rows = getRows();
+    const totalQty = rows.reduce((s,r)=>s + (r.qty||0), 0);
+    $("qtyBadge").textContent = `Total fixtures: ${totalQty.toLocaleString()}`;
+  }
+
+  // Per-row instant subtotal calc for mini preview (doesn't change core calc)
+  function instantPerUnit(category, proposedW){
+    const rules = CONFIG.instantTables[category];
+    if(!rules) return 0;
+    const anyRule = rules.find(x=>x.any);
+    if(anyRule) return anyRule.incentive || 0;
+    const w = proposedW;
+    const match = rules.find(x => w > x.minW && w <= x.maxW) || rules.find(x => w >= x.minW && w <= x.maxW);
+    return match ? (match.incentive || 0) : 0;
   }
 
   function rowTemplate(){
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td><input placeholder="e.g., 2x4 Troffer" value=""></td>
+      <td>
+        <input placeholder="e.g., 2x4 Troffer" value="">
+        <div class="cellHint">WR: 0W • WC: 0W • Instant: $0</div>
+      </td>
       <td>
         <select>
           ${CONFIG.categories.map(c=>`<option value="${c.key}">${c.label}</option>`).join("")}
         </select>
       </td>
-      <td><input type="number" value="1" min="0" step="1"></td>
-      <td><input type="number" value="0" min="0" step="1"></td>
-      <td><input type="number" value="0" min="0" step="1"></td>
-      <td><input type="number" value="${$("defaultHours").value||3000}" min="0" step="50"></td>
+      <td><input type="number" value="1" min="0" step="1" inputmode="numeric"></td>
+      <td><input type="number" value="0" min="0" step="1" inputmode="numeric"></td>
+      <td><input type="number" value="0" min="0" step="1" inputmode="numeric"></td>
+      <td><input type="number" value="${$("defaultHours").value||3000}" min="0" step="50" inputmode="numeric"></td>
       <td>
         <select>
           <option value="N">N</option>
           <option value="Y">Y</option>
         </select>
       </td>
-      <td><input placeholder="optional" value=""></td>
       <td><button class="danger" type="button">X</button></td>
     `;
-    tr.querySelector("button").onclick = ()=> tr.remove();
+
+    // remove
+    tr.querySelector("button").onclick = ()=> {
+      tr.remove();
+      updateQtyBadge();
+      refreshAllRowHints();
+    };
+
+    // auto-select on focus (polish)
+    tr.querySelectorAll("input").forEach(inp=>{
+      inp.addEventListener("focus", ()=> inp.select());
+      inp.addEventListener("wheel", (e)=>{ if(document.activeElement === inp) e.preventDefault(); }, {passive:false});
+    });
+
+    // clamp non-negative on blur + update hint
+    tr.querySelectorAll("input").forEach(inp=>{
+      inp.addEventListener("blur", ()=>{
+        if(inp.type === "number"){
+          inp.value = clampNonNeg(inp.value);
+        }
+        refreshRowHint(tr);
+        updateQtyBadge();
+      });
+      inp.addEventListener("input", ()=>{
+        refreshRowHint(tr);
+        updateQtyBadge();
+      });
+    });
+
+    // selects update hint
+    tr.querySelectorAll("select").forEach(sel=>{
+      sel.addEventListener("change", ()=>{
+        refreshRowHint(tr);
+        updateQtyBadge();
+      });
+    });
+
     return tr;
   }
 
   function addRow(){
     $("fixtureTable").querySelector("tbody").appendChild(rowTemplate());
+    updateQtyBadge();
+    refreshAllRowHints();
   }
 
   function getRows(){
     const tbody = $("fixtureTable").querySelector("tbody");
     return [...tbody.querySelectorAll("tr")].map(tr=>{
       const tds = tr.querySelectorAll("td");
+
+      const nameInput = tds[0].querySelector("input");
+      const hintDiv = tds[0].querySelector(".cellHint");
+
+      const category = tds[1].querySelector("select").value;
+      const qty = clampNonNeg(tds[2].querySelector("input").value);
+      const wOld = clampNonNeg(tds[3].querySelector("input").value);
+      const wNew = clampNonNeg(tds[4].querySelector("input").value);
+      const hours = clampNonNeg(tds[5].querySelector("input").value);
+      const controls = tds[6].querySelector("select").value;
+
       return {
-        name: (tds[0].querySelector("input").value.trim() || "Line"),
-        category: tds[1].querySelector("select").value,
-        qty: num(tds[2].querySelector("input").value),
-        wOld: num(tds[3].querySelector("input").value),
-        wNew: num(tds[4].querySelector("input").value),
-        hours: num(tds[5].querySelector("input").value),
-        controls: tds[6].querySelector("select").value,
-        notes: tds[7].querySelector("input").value.trim()
+        tr,
+        name: (nameInput.value.trim() || "Line"),
+        hintDiv,
+        category, qty, wOld, wNew, hours, controls
       };
     }).filter(r=>r.qty>0);
   }
 
+  function refreshRowHint(tr){
+    const tds = tr.querySelectorAll("td");
+    if(!tds.length) return;
+
+    const hint = tds[0].querySelector(".cellHint");
+    const category = tds[1].querySelector("select").value;
+    const qty = clampNonNeg(tds[2].querySelector("input").value);
+    const wOld = clampNonNeg(tds[3].querySelector("input").value);
+    const wNew = clampNonNeg(tds[4].querySelector("input").value);
+    const controls = tds[6].querySelector("select").value;
+
+    const wr = Math.max(wOld - wNew, 0) * qty;
+    const wc = (controls === "Y" ? Math.max(wNew,0) * qty : 0);
+
+    const perUnit = instantPerUnit(category, wNew);
+    const instantSub = perUnit * qty;
+
+    hint.textContent = `WR: ${Math.round(wr).toLocaleString()}W • WC: ${Math.round(wc).toLocaleString()}W • Instant: ${money(instantSub)}`;
+  }
+
+  function refreshAllRowHints(){
+    $("fixtureTable").querySelectorAll("tbody tr").forEach(tr => refreshRowHint(tr));
+  }
+
+  // LOCKED calc logic
   function calcEnergy(rows, rateKwh){
     let kwhSaved=0;
     rows.forEach(r=>{
@@ -622,20 +772,10 @@
   }
 
   function instantRebate(rows){
-    const tables = CONFIG.instantTables;
     let rebate = 0;
     rows.forEach(r=>{
-      const rules = tables[r.category];
-      if(!rules) return;
-
-      const anyRule = rules.find(x=>x.any);
-      if(anyRule){
-        rebate += (anyRule.incentive||0) * r.qty;
-        return;
-      }
-      const w = r.wNew;
-      const match = rules.find(x => w > x.minW && w <= x.maxW) || rules.find(x => w >= x.minW && w <= x.maxW);
-      if(match) rebate += (match.incentive||0) * r.qty;
+      const per = instantPerUnit(r.category, r.wNew);
+      rebate += per * r.qty;
     });
     return rebate;
   }
@@ -652,18 +792,22 @@
 
   function run(){
     clearStatus();
+    $("recommendLine").style.display = "none";
+    $("recommendLine").textContent = "";
+
     const rows = getRows();
     if(rows.length===0){
       $("results").innerHTML = "";
       $("calcSummary").textContent = "";
       showStatus("Add at least one fixture row.", true);
+      updateQtyBadge();
       return;
     }
 
-    const rateKwh = num($("rateKwh").value);
-    const projectCostTotal = num($("projectCost").value) + num($("laborCost").value);
-    const rateReduced = num($("rateWattReduced").value);
-    const rateControlled = num($("rateWattControlled").value);
+    const rateKwh = clampNonNeg($("rateKwh").value);
+    const projectCostTotal = clampNonNeg($("projectCost").value) + clampNonNeg($("laborCost").value);
+    const rateReduced = clampNonNeg($("rateWattReduced").value);
+    const rateControlled = clampNonNeg($("rateWattControlled").value);
     const offeringType = $("offeringType").value;
 
     const energy = calcEnergy(rows, rateKwh);
@@ -709,18 +853,31 @@
       `Watts controlled: ${Math.round(watts.wattsControlledTotal).toLocaleString()} W • ` +
       `kWh saved: ${Math.round(energy.kwhSaved).toLocaleString()} • $/yr saved: ${money(energy.annual$)}`;
 
+    // Polished recommendation line
+    if(LAST.runnerUp){
+      const delta = LAST.best.rebateTotal - LAST.runnerUp.rebateTotal;
+      const msg = `Recommended: ${LAST.best.label} — it provides ${money(Math.abs(delta))} ${delta>=0 ? "MORE" : "LESS"} rebate than the runner‑up.`;
+      $("recommendLine").textContent = msg;
+      $("recommendLine").style.display = "block";
+    } else {
+      $("recommendLine").textContent = `Recommended: ${LAST.best.label}`;
+      $("recommendLine").style.display = "block";
+    }
+
     renderTopTwo();
     showStatus("Calculation complete.");
+    updateQtyBadge();
   }
 
-  function renderScenarioCard(s, tagText, tagClass){
+  function renderScenarioCard(s, tagText, tagClass, cardClass){
     const pay = s.paybackYears==null ? "—" : (Math.round(s.paybackYears*100)/100)+" yrs";
+
     const div = document.createElement("div");
-    div.className = "resultCard";
+    div.className = "resultCard " + (cardClass || "");
     div.innerHTML = `
-      <div class="resultTop">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;">
         <div>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;">
             <span class="tag ${tagClass}">${tagText}</span>
             <div style="font-weight:800;font-size:14px;">${s.label}</div>
           </div>
@@ -749,13 +906,13 @@
     box.innerHTML = "";
     if(!LAST || !LAST.best) return;
 
-    box.appendChild(renderScenarioCard(LAST.best, "Best", "best"));
+    box.appendChild(renderScenarioCard(LAST.best, "Best", "best", "best"));
     if(LAST.runnerUp){
-      box.appendChild(renderScenarioCard(LAST.runnerUp, "Runner‑up", "runner"));
+      box.appendChild(renderScenarioCard(LAST.runnerUp, "Runner‑up", "runner", "runner"));
     }
   }
 
-  // ---------- PDF ----------
+  // ---------- PDF (AES header styling mirrors your ROI tool approach) ----------
   function fmtDate(d){
     const mm = String(d.getMonth()+1).padStart(2,"0");
     const dd = String(d.getDate()).padStart(2,"0");
@@ -807,14 +964,14 @@
       .trim();
   }
 
-  async function generatePdf(openAfter=true){
+  async function generatePdf(){
     if(!LAST || !LAST.best){
       showStatus("Click Calculate first.", true);
-      return null;
+      return;
     }
     if(!window.jspdf){
       showStatus("PDF library not loaded. Refresh and try again.", true);
-      return null;
+      return;
     }
 
     const { jsPDF } = window.jspdf;
@@ -825,26 +982,21 @@
 
     const logoImg = new Image();
     logoImg.src = "aes-logo.png";
-
     const logoDataUrl = await new Promise((resolve, reject)=>{
       logoImg.onload = async ()=> resolve(await imgToDataUrl(logoImg));
       logoImg.onerror = ()=> reject(new Error("Could not load aes-logo.png"));
-    }).catch(e=>{
+    }).catch(()=>{
       showStatus("PDF error: could not load aes-logo.png. Ensure it exists next to index.html.", true);
       return null;
     });
 
-    if(!logoDataUrl) return null;
+    if(!logoDataUrl) return;
 
-    // PAGE 1 — Cover letter
-    const pageW = doc.internal.pageSize.getWidth();
-    const pageH = doc.internal.pageSize.getHeight();
-
+    // Page 1: Cover letter
     drawPdfHeader(doc, logoDataUrl, dateStr);
 
     doc.setFont("times","normal");
     doc.setFontSize(11);
-    doc.setTextColor(0,0,0);
 
     let y = 40;
 
@@ -856,17 +1008,14 @@
     doc.setFont("times","normal");
     doc.setFontSize(11);
 
-    // Recipient block (uses modal fields)
     const recipName = contact.name || "—";
     const recipCompany = contact.company || "—";
     const recipAddress = contact.address || "—";
 
     doc.text(recipName, 12, y); y += 6;
     doc.text(recipCompany, 12, y); y += 6;
-
-    // wrap address if long
     const addrLines = doc.splitTextToSize(recipAddress, 180);
-    addrLines.forEach(line => { doc.text(line, 12, y); y += 6; });
+    addrLines.forEach(line=>{ doc.text(line, 12, y); y += 6; });
 
     y += 4;
     doc.text(`Date: ${dateStr}`, 12, y); y += 10;
@@ -877,7 +1026,6 @@
 
     const best = LAST.best;
     const runner = LAST.runnerUp;
-
     const pay = best.paybackYears==null ? "—" : (Math.round(best.paybackYears*100)/100)+" years";
 
     const bullets = [
@@ -898,24 +1046,21 @@
     y += 6;
     doc.text("If you would like AES to assist with product selection, paperwork, or execution, please reach out:", 12, y); y += 7;
 
-    doc.setFont("times","bold");
-    doc.text("All Electric Sales (AES)", 12, y); y += 6;
+    doc.setFont("times","bold"); doc.text("All Electric Sales (AES)", 12, y); y += 6;
     doc.setFont("times","normal");
     doc.text("420 W North Ave, Addison, IL 60101", 12, y); y += 6;
     doc.text("Phone: 847-830-8447", 12, y); y += 6;
     doc.text("Email: jmitchell@allelectricsales.com", 12, y);
 
-    // PAGE 2 — Results summary table
+    // Page 2: Summary blocks
     doc.addPage();
     drawPdfHeader(doc, logoDataUrl, dateStr);
 
     y = 36;
-    doc.setFont("times","bold");
-    doc.setFontSize(12);
+    doc.setFont("times","bold"); doc.setFontSize(12);
     doc.text("Results Summary", 12, y); y += 10;
 
-    doc.setFont("times","normal");
-    doc.setFontSize(11);
+    doc.setFont("times","normal"); doc.setFontSize(11);
 
     function drawScenarioBlock(title, s){
       doc.setFillColor(240,243,246);
@@ -949,19 +1094,14 @@
       drawScenarioBlock("Runner-up", runner);
     }
 
-    // footer all pages
+    // footer for all pages
     const pageCount = doc.internal.getNumberOfPages();
     for(let i=1;i<=pageCount;i++){
       doc.setPage(i);
       drawPdfFooter(doc, i, pageCount);
     }
 
-    if(openAfter){
-      const fileName = sanitizeFileName("AES Rebate Optimizer") + ".pdf";
-      doc.save(fileName);
-    }
-
-    return doc;
+    doc.save(sanitizeFileName("AES Rebate Optimizer") + ".pdf");
   }
 
   // ---------- Email ----------
@@ -1035,9 +1175,6 @@ Best option:
 
     const subject = encodeURIComponent("AES Rebate Optimizer Results");
     const body = encodeURIComponent(buildEmailBody());
-
-    // BCC is not displayed in the UI; embedded only in mailto.
-    // Some email clients may show the BCC field while composing.
     const bcc = encodeURIComponent(BCC_EMAIL);
 
     closeEmailModal();
@@ -1049,39 +1186,50 @@ Best option:
       "&body=" + body;
   }
 
-  // ---------- wire up ----------
+  // ---------- Wire up ----------
   document.addEventListener("DOMContentLoaded", ()=>{
-    $("addRow").addEventListener("click", addRow);
+    // Start with 2 rows (polish: more useful than 1)
+    addRow();
+    addRow();
+    refreshAllRowHints();
+    updateQtyBadge();
+    showStatus("Ready.");
+
+    $("addRow").addEventListener("click", ()=>{ addRow(); refreshAllRowHints(); });
     $("clearRows").addEventListener("click", ()=>{
       $("fixtureTable").querySelector("tbody").innerHTML = "";
       $("results").innerHTML = "";
       $("calcSummary").textContent = "";
+      $("recommendLine").style.display = "none";
       showStatus("Rows cleared.", true);
+      addRow();
+      updateQtyBadge();
+      refreshAllRowHints();
     });
 
     $("defaultHours").addEventListener("change", ()=>{
       const tbody = $("fixtureTable").querySelector("tbody");
       [...tbody.querySelectorAll("tr")].forEach(tr=>{
         const hoursInput = tr.querySelectorAll("td")[5].querySelector("input");
-        if(num(hoursInput.value) === 0) hoursInput.value = $("defaultHours").value;
+        if(clampNonNeg(hoursInput.value) === 0) hoursInput.value = clampNonNeg($("defaultHours").value);
+        refreshRowHint(tr);
       });
     });
 
     $("calculate").addEventListener("click", run);
 
     $("btnPdf").addEventListener("click", async ()=>{
-      // If user hasn’t entered contact info yet, prompt once for cover letter details
-      if(!LAST_CONTACT.name && !LAST_CONTACT.company && !LAST_CONTACT.address){
-        if(!LAST || !LAST.best){
-          showStatus("Click Calculate first.", true);
-          return;
-        }
-        openEmailModal();
-        showStatus("Enter your info, then click Create Email Draft (or Cancel). PDF will use this info.", true);
-        // If they cancel, PDF will still work with dashes; that’s fine.
+      if(!LAST || !LAST.best){
+        showStatus("Click Calculate first.", true);
         return;
       }
-      await generatePdf(true);
+      // If no contact entered yet, prompt once (but PDF still works with dashes)
+      if(!LAST_CONTACT.name && !LAST_CONTACT.company && !LAST_CONTACT.address){
+        openEmailModal();
+        showStatus("Enter your info (for cover letter), then Create Email Draft or Cancel. PDF will use the entered info.", true);
+        return;
+      }
+      await generatePdf();
     });
 
     $("btnEmail").addEventListener("click", openEmailModal);
@@ -1090,14 +1238,16 @@ Best option:
     $("modalCancel").addEventListener("click", closeEmailModal);
     $("modalSend").addEventListener("click", createEmailDraft);
 
-    // close modal on overlay click
     $("modalOverlay").addEventListener("click", (e)=>{
       if(e.target === $("modalOverlay")) closeEmailModal();
     });
 
-    // start with one row
-    addRow();
-    showStatus("Ready.");
+    // Global polish: auto-select on focus for all inputs on page
+    document.body.addEventListener("focusin", (e)=>{
+      if(e.target && e.target.tagName === "INPUT"){
+        try{ e.target.select(); }catch{}
+      }
+    });
   });
 
 })();
