@@ -13,7 +13,6 @@
       --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
     }
     html,body{margin:0;background:linear-gradient(180deg,#070b14 0%, #0b1220 35%, #070b14 100%);color:var(--text);font-family:var(--sans);}
-    a{color:var(--accent2)}
     .wrap{max-width:1200px;margin:28px auto;padding:0 18px 40px;}
     .title{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;}
     h1{margin:0;font-size:24px;letter-spacing:.2px}
@@ -29,19 +28,19 @@
     .row{display:flex;gap:10px;flex-wrap:wrap}
     .row > *{flex:1 1 170px}
     label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
-    input,select,textarea{
+    input,select{
       width:100%; box-sizing:border-box; border-radius:10px; border:1px solid var(--border);
       background:rgba(0,0,0,.25); color:var(--text); padding:10px 10px; font-size:13px;
       outline:none;
     }
-    textarea{min-height:110px;font-family:var(--mono);font-size:12px;line-height:1.35}
-    input:focus,select:focus,textarea:focus{border-color:rgba(79,209,197,.55); box-shadow:0 0 0 3px rgba(79,209,197,.15)}
+    input:focus,select:focus{border-color:rgba(79,209,197,.55); box-shadow:0 0 0 3px rgba(79,209,197,.15)}
     .btnbar{display:flex;gap:10px;flex-wrap:wrap}
     button{
       border:1px solid var(--border);
       background:linear-gradient(180deg,rgba(79,209,197,.22),rgba(79,209,197,.10));
       color:var(--text);
       padding:10px 12px;border-radius:12px;font-size:13px;cursor:pointer;
+      display:inline-flex;align-items:center;gap:8px;
     }
     button.secondary{background:rgba(255,255,255,.06)}
     button.danger{background:rgba(251,113,133,.14)}
@@ -73,9 +72,14 @@
     .sep{height:1px;background:rgba(255,255,255,.08);margin:10px 0}
     .rightnote{color:var(--muted);font-size:12px}
     .flex{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text)}
-    .check input{width:auto}
     .best{outline:2px solid rgba(79,209,197,.55); box-shadow:0 0 0 4px rgba(79,209,197,.14)}
+    .runner{outline:2px solid rgba(251,191,36,.40); box-shadow:0 0 0 4px rgba(251,191,36,.10)}
+    .hdRight{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .calcBtn{
+      background:linear-gradient(180deg,rgba(96,165,250,.22),rgba(96,165,250,.10));
+      border-color:rgba(96,165,250,.35);
+    }
+    .calcBtn svg{opacity:.9}
   </style>
 </head>
 <body>
@@ -84,11 +88,11 @@
     <div>
       <h1>Rebate Optimizer (Chicago)</h1>
       <div class="sub">
-        Enter existing vs proposed fixtures → compares <span class="mono">Instant</span> vs <span class="mono">Standard/Small Business</span> vs <span class="mono">Instant + Watts Controlled</span> → ranks best option.
+        Enter existing vs proposed fixtures → compares Instant vs Standard/Small Business vs Instant + Watts Controlled → ranks best option.
       </div>
     </div>
     <div class="pill">
-      <span class="mono">v1.1</span>
+      <span class="mono">v1.2</span>
       <span>Static • GitHub Pages-ready</span>
     </div>
   </div>
@@ -165,45 +169,47 @@
 
         <div style="margin-top:12px" class="btnbar">
           <button id="addRow">+ Add fixture row</button>
-          <button class="secondary" id="loadExample">Load example</button>
           <button class="secondary" id="clearRows">Clear rows</button>
         </div>
 
         <div class="footnote">
-          This tool estimates rebates based on the rule tables you configure. Utility programs can change; verify final eligibility and funding.
+          This tool estimates rebates. Utility programs can change; verify final eligibility and funding.
         </div>
       </div>
     </div>
 
-    <!-- RIGHT: Config + Results -->
+    <!-- RIGHT: Results -->
     <div class="card">
       <div class="hd">
-        <h2>Instant Table + Results</h2>
-        <div class="badge warn">Compares 3 paths</div>
+        <h2>Results</h2>
+        <div class="hdRight">
+          <span class="badge warn">Compares 3 paths</span>
+          <button id="calculate" class="calcBtn" title="Run the full calculation">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M5 4h14a2 2 0 0 1 2 2v14l-4-3-4 3-4-3-4 3V6a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.6" />
+              <path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+            Calculate
+          </button>
+        </div>
       </div>
       <div class="bd">
-        <label class="mono">Instant config (JSON) – edit only if Instant values change</label>
-        <textarea id="programConfig"></textarea>
-        <div class="tiny">Instant uses category + proposed watts band. STA/SBO is driven by your $/W inputs above.</div>
-
-        <div style="margin-top:12px" class="btnbar">
-          <button id="run">Optimize rebates</button>
-          <button class="secondary" id="copyBest">Copy best summary</button>
-          <button class="secondary" id="exportCsv">Export results CSV</button>
-          <button class="danger" id="resetCfg">Reset instant table</button>
-        </div>
-
-        <div class="sep"></div>
-
         <div class="flex">
           <div id="status" class="badge">Ready</div>
           <div class="tiny" id="calcSummary"></div>
         </div>
 
-        <div style="margin-top:10px" class="results" id="results"></div>
+        <div style="margin-top:12px" class="btnbar">
+          <button class="secondary" id="copyBest">Copy best summary</button>
+          <button class="secondary" id="exportCsv">Export results CSV</button>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="results" id="results"></div>
 
         <div class="footnote">
-          <div><span class="mono">Instant</span> starter values are preloaded from the 2026 Instant Discounts Lighting guide (Jan 1–Dec 31, 2026). Offers subject to change.</div>
+          Instant values are embedded (not shown) to keep the interface simple. If Instant values change, update them inside <span class="mono">index.html</span>.
         </div>
       </div>
     </div>
@@ -212,17 +218,15 @@
 
 <script>
 /**
+ * CALCULATION LOGIC: LOCKED (same as your working version)
  * Instant = prescriptive per fixture based on proposed watts bands.
  * STA/SBO = (Watts Reduced × $/W Reduced) + (Watts Controlled × $/W Controlled)
  * Combo allowed: Instant + Watts Controlled ONLY (no Watts Reduced)
  */
 
-const DEFAULT_CONFIG = {
-  currency: "USD",
+// --- Instant table embedded (not shown in UI) ---
+const CONFIG = {
   instantProgram: {
-    id: "comed_instant_2026",
-    name: "Instant Only",
-    notes: "Starter table based on ComEd 2026 Instant Discounts Lighting guide. Verify eligibility/funding.",
     tables: {
       "INTERIOR_DLC_FIXTURE": [
         { minW: 0,   maxW: 60,  incentive: 30 },
@@ -238,15 +242,9 @@ const DEFAULT_CONFIG = {
         { minW: 200, maxW: 300, incentive: 350 },
         { minW: 300, maxW: 500, incentive: 550 }
       ],
-      "TLED_LINEAR_LAMP": [
-        { any: true, incentive: 7 }
-      ],
-      "TLED_TYPE_C": [
-        { any: true, incentive: 10 }
-      ],
-      "PIN_BASE_LED": [
-        { any: true, incentive: 10 }
-      ]
+      "TLED_LINEAR_LAMP": [{ any: true, incentive: 7 }],
+      "TLED_TYPE_C":      [{ any: true, incentive: 10 }],
+      "PIN_BASE_LED":     [{ any: true, incentive: 10 }]
     }
   },
   categories: [
@@ -260,20 +258,19 @@ const DEFAULT_CONFIG = {
 };
 
 const $ = (id)=>document.getElementById(id);
-
+function num(x){ return isFinite(+x) ? +x : 0; }
 function money(x){
   if(!isFinite(x)) return "$0";
   const s = (Math.round((x+Number.EPSILON)*100)/100).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
   return "$"+s;
 }
-function num(x){ return isFinite(+x) ? +x : 0; }
-
 function setStatus(text, kind="neutral"){
   const el = $("status");
   el.textContent = text;
   el.className = "badge " + (kind==="ok"?"ok":kind==="warn"?"warn":kind==="bad"?"bad":"");
 }
 
+// ---------- table ----------
 function rowTemplate(catOptions){
   const tr = document.createElement("tr");
   tr.innerHTML = `
@@ -299,97 +296,83 @@ function rowTemplate(catOptions){
   tr.querySelector("button").onclick = ()=> tr.remove();
   return tr;
 }
-
+function addRow(){
+  $("fixtureTable").querySelector("tbody").appendChild(rowTemplate(CONFIG.categories));
+}
 function getRows(){
   const tbody = $("fixtureTable").querySelector("tbody");
-  const rows = [...tbody.querySelectorAll("tr")].map(tr=>{
-    const cells = tr.querySelectorAll("td");
-    const name = cells[0].querySelector("input").value.trim() || "Line";
-    const category = cells[1].querySelector("select").value;
-    const qty = num(cells[2].querySelector("input").value);
-    const wOld = num(cells[3].querySelector("input").value);
-    const wNew = num(cells[4].querySelector("input").value);
-    const hours = num(cells[5].querySelector("input").value);
-    const controls = cells[6].querySelector("select").value;
-    const notes = cells[7].querySelector("input").value.trim();
-    return { name, category, qty, wOld, wNew, hours, controls, notes };
-  }).filter(r => r.qty>0);
-  return rows;
+  return [...tbody.querySelectorAll("tr")].map(tr=>{
+    const tds = tr.querySelectorAll("td");
+    return {
+      name: (tds[0].querySelector("input").value.trim() || "Line"),
+      category: tds[1].querySelector("select").value,
+      qty: num(tds[2].querySelector("input").value),
+      wOld: num(tds[3].querySelector("input").value),
+      wNew: num(tds[4].querySelector("input").value),
+      hours: num(tds[5].querySelector("input").value),
+      controls: tds[6].querySelector("select").value,
+      notes: tds[7].querySelector("input").value.trim()
+    };
+  }).filter(r=>r.qty>0);
 }
 
+// ---------- locked calculations ----------
 function calcEnergy(rows, rateKwh){
   let kwhSaved=0;
   rows.forEach(r=>{
     const dW = (r.wOld - r.wNew);
     kwhSaved += (dW * r.qty * r.hours)/1000;
   });
-  const annual$ = kwhSaved * rateKwh;
-  return { kwhSaved, annual$ };
+  return { kwhSaved, annual$: kwhSaved * rateKwh };
 }
-
 function calcWatts(rows){
   let wattsReducedTotal = 0;
   let wattsControlledTotal = 0;
   rows.forEach(r=>{
-    const wr = Math.max(r.wOld - r.wNew, 0) * r.qty;
-    wattsReducedTotal += wr;
-
-    if(r.controls === "Y"){
-      const wc = Math.max(r.wNew, 0) * r.qty;
-      wattsControlledTotal += wc;
+    wattsReducedTotal += Math.max(r.wOld - r.wNew, 0) * r.qty;
+    if(r.controls==="Y"){
+      wattsControlledTotal += Math.max(r.wNew, 0) * r.qty;
     }
   });
   return { wattsReducedTotal, wattsControlledTotal };
 }
-
-function instantRebate(cfg, rows){
-  const tables = (cfg.instantProgram && cfg.instantProgram.tables) ? cfg.instantProgram.tables : {};
+function instantRebate(rows){
+  const tables = CONFIG.instantProgram.tables;
   let rebate = 0;
-
   rows.forEach(r=>{
     const rules = tables[r.category];
     if(!rules) return;
-
     const anyRule = rules.find(x=>x.any);
-    if(anyRule){
-      rebate += (anyRule.incentive||0) * r.qty;
-      return;
-    }
-
+    if(anyRule){ rebate += (anyRule.incentive||0) * r.qty; return; }
     const w = r.wNew;
     const match = rules.find(x => w > x.minW && w <= x.maxW) || rules.find(x => w >= x.minW && w <= x.maxW);
-    if(match){
-      rebate += (match.incentive||0) * r.qty;
-    }
+    if(match) rebate += (match.incentive||0) * r.qty;
   });
-
   return rebate;
 }
-
 function staSboRebate(rows, rateReduced, rateControlled){
-  // (Watts Reduced × $/W Reduced) + (Watts Controlled × $/W Controlled)
   const { wattsReducedTotal, wattsControlledTotal } = calcWatts(rows);
   return (wattsReducedTotal * rateReduced) + (wattsControlledTotal * rateControlled);
 }
-
 function controlledOnlyRebate(rows, rateControlled){
-  // Only watts controlled (no watts reduced)
   const { wattsControlledTotal } = calcWatts(rows);
   return wattsControlledTotal * rateControlled;
 }
 
-function runOptimizer(cfg){
+// ---------- run + render ----------
+let LAST = null;
+
+function run(){
   const rows = getRows();
   if(rows.length===0){
     setStatus("Add at least one fixture row.", "warn");
-    return {results:[], best:null};
+    $("results").innerHTML = "";
+    $("calcSummary").textContent = "";
+    return;
   }
 
   const rateKwh = num($("rateKwh").value);
-  const projectCost = num($("projectCost").value);
-  const laborCost  = num($("laborCost").value);
-  const projectCostTotal = projectCost + laborCost;
-
+  const projectCostTotal = num($("projectCost").value) + num($("laborCost").value);
   const rateReduced = num($("rateWattReduced").value);
   const rateControlled = num($("rateWattControlled").value);
   const offeringType = $("offeringType").value;
@@ -397,42 +380,31 @@ function runOptimizer(cfg){
   const energy = calcEnergy(rows, rateKwh);
   const watts = calcWatts(rows);
 
-  // Scenario 1: Instant only
-  const rebateInstant = instantRebate(cfg, rows);
-
-  // Scenario 2: STA/SBO only
+  const rebateInstant = instantRebate(rows);
   const rebateStaSbo = staSboRebate(rows, rateReduced, rateControlled);
-
-  // Scenario 3: Instant + Watts Controlled only (no Watts Reduced)
   const rebateInstantPlusControlled = rebateInstant + controlledOnlyRebate(rows, rateControlled);
 
   const scenarios = [
+    { label:"Instant Only", rebateTotal: rebateInstant, breakdown:[{name:"Instant", rebate: rebateInstant}] },
     {
-      label: "Instant Only",
-      rebateTotal: rebateInstant,
-      breakdown: [
-        { name: "Instant", rebate: rebateInstant }
-      ]
-    },
-    {
-      label: (offeringType === "SMALL_BIZ" ? "Small Business Only (Watts Reduced + Watts Controlled)" : "Standard Only (Watts Reduced + Watts Controlled)"),
+      label: (offeringType==="SMALL_BIZ"
+        ? "Small Business Only (Watts Reduced + Watts Controlled)"
+        : "Standard Only (Watts Reduced + Watts Controlled)"),
       rebateTotal: rebateStaSbo,
-      breakdown: [
-        { name: (offeringType === "SMALL_BIZ" ? "Small Business" : "Standard"), rebate: rebateStaSbo }
-      ]
+      breakdown:[{name:(offeringType==="SMALL_BIZ"?"Small Business":"Standard"), rebate: rebateStaSbo}]
     },
     {
-      label: "Instant + Watts Controlled",
+      label:"Instant + Watts Controlled",
       rebateTotal: rebateInstantPlusControlled,
-      breakdown: [
-        { name: "Instant", rebate: rebateInstant },
-        { name: "Watts Controlled", rebate: controlledOnlyRebate(rows, rateControlled) }
+      breakdown:[
+        {name:"Instant", rebate: rebateInstant},
+        {name:"Watts Controlled", rebate: controlledOnlyRebate(rows, rateControlled)}
       ]
     }
   ].map(s=>{
     const netCost = Math.max(projectCostTotal - s.rebateTotal, 0);
     const paybackYears = energy.annual$>0 ? (netCost / energy.annual$) : null;
-    return { ...s, netCost, paybackYears, energy, watts, projectCostTotal, offeringType, rateReduced, rateControlled };
+    return { ...s, netCost, paybackYears, energy, watts, projectCostTotal, rateReduced, rateControlled };
   }).sort((a,b)=>{
     if(a.netCost !== b.netCost) return a.netCost - b.netCost;
     if(b.rebateTotal !== a.rebateTotal) return b.rebateTotal - a.rebateTotal;
@@ -441,71 +413,72 @@ function runOptimizer(cfg){
     return ap - bp;
   });
 
-  return { results: scenarios, best: scenarios[0], rows };
+  LAST = { best: scenarios[0], runnerUp: scenarios[1] || null, all: scenarios };
+
+  // summary line
+  $("calcSummary").textContent =
+    `Project cost: ${money(projectCostTotal)} • Watts reduced: ${Math.round(watts.wattsReducedTotal).toLocaleString()} W • Watts controlled: ${Math.round(watts.wattsControlledTotal).toLocaleString()} W • kWh saved: ${Math.round(energy.kwhSaved).toLocaleString()} • $/yr saved: ${money(energy.annual$)}`;
+
+  renderTopTwo();
+  setStatus("Calculation complete", "ok");
 }
 
-function renderResults(payload){
-  const {results, best} = payload;
+function renderScenarioCard(s, tagText, tagClass, extraClass){
+  const pay = s.paybackYears==null ? "—" : (Math.round(s.paybackYears*100)/100)+" yrs";
+  const div = document.createElement("div");
+  div.className = "result " + (extraClass||"");
+  div.innerHTML = `
+    <div class="top">
+      <div>
+        <div class="name"><span class="badge ${tagClass}">${tagText}</span> ${s.label}</div>
+        <div class="tiny">Breakdown: ${s.breakdown.map(b=>`${b.name} (${money(b.rebate)})`).join(" • ")}</div>
+        <div class="tiny mono">Inputs: $/W reduced=${s.rateReduced} • $/W controlled=${s.rateControlled}</div>
+      </div>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><div class="l">Total rebate</div><div class="v">${money(s.rebateTotal)}</div></div>
+      <div class="kpi"><div class="l">Net cost</div><div class="v">${money(s.netCost)}</div></div>
+      <div class="kpi"><div class="l">Watts reduced</div><div class="v">${Math.round(s.watts.wattsReducedTotal).toLocaleString()} W</div></div>
+      <div class="kpi"><div class="l">Watts controlled</div><div class="v">${Math.round(s.watts.wattsControlledTotal).toLocaleString()} W</div></div>
+      <div class="kpi"><div class="l">Simple payback</div><div class="v">${pay}</div></div>
+    </div>
+  `;
+  return div;
+}
+
+function renderTopTwo(){
   const box = $("results");
   box.innerHTML = "";
+  if(!LAST || !LAST.best) return;
 
-  if(!results.length){
-    $("calcSummary").textContent = "";
-    return;
+  box.appendChild(renderScenarioCard(LAST.best, "Best", "ok", "best"));
+
+  if(LAST.runnerUp){
+    box.appendChild(renderScenarioCard(LAST.runnerUp, "Runner-up", "warn", "runner"));
   }
-
-  const e = best.energy;
-  $("calcSummary").textContent =
-    `Project cost: ${money(best.projectCostTotal)} • Watts reduced: ${Math.round(best.watts.wattsReducedTotal).toLocaleString()}W • Watts controlled: ${Math.round(best.watts.wattsControlledTotal).toLocaleString()}W • kWh saved: ${Math.round(e.kwhSaved).toLocaleString()} • $/yr saved: ${money(e.annual$)}`;
-
-  results.forEach((r, idx)=>{
-    const div = document.createElement("div");
-    div.className = "result" + (idx===0 ? " best" : "");
-    const tag = (idx===0) ? `<span class="badge ok">Best</span>` : (idx===1) ? `<span class="badge warn">Runner-up</span>` : `<span class="badge">Option</span>`;
-
-    div.innerHTML = `
-      <div class="top">
-        <div>
-          <div class="name">${tag} ${r.label}</div>
-          <div class="tiny">Breakdown: ${r.breakdown.map(b=>`${b.name} (${money(b.rebate)})`).join(" • ")}</div>
-          <div class="tiny mono">STA/SBO inputs used: $/W reduced=${r.rateReduced} • $/W controlled=${r.rateControlled}</div>
-        </div>
-      </div>
-
-      <div class="kpis">
-        <div class="kpi"><div class="l">Total rebate</div><div class="v">${money(r.rebateTotal)}</div></div>
-        <div class="kpi"><div class="l">Net cost</div><div class="v">${money(r.netCost)}</div></div>
-        <div class="kpi"><div class="l">Watts reduced</div><div class="v">${Math.round(r.watts.wattsReducedTotal).toLocaleString()} W</div></div>
-        <div class="kpi"><div class="l">Watts controlled</div><div class="v">${Math.round(r.watts.wattsControlledTotal).toLocaleString()} W</div></div>
-        <div class="kpi"><div class="l">Simple payback</div><div class="v">${r.paybackYears==null ? "—" : (Math.round(r.paybackYears*100)/100)+" yrs"}</div></div>
-      </div>
-    `;
-    box.appendChild(div);
-  });
-
-  setStatus("Optimization complete", "ok");
 }
 
-function bestSummaryText(payload){
-  const {best} = payload;
-  if(!best) return "";
-  const pay = best.paybackYears==null ? "N/A" : (Math.round(best.paybackYears*100)/100)+" years";
+function bestSummaryText(){
+  if(!LAST || !LAST.best) return "";
+  const b = LAST.best;
+  const pay = b.paybackYears==null ? "N/A" : (Math.round(b.paybackYears*100)/100)+" years";
   return [
-    `Best rebate path: ${best.label}`,
-    `Project cost (materials+labor): ${money(best.projectCostTotal)}`,
-    `Total rebate: ${money(best.rebateTotal)}`,
-    `Net cost after rebates: ${money(best.netCost)}`,
-    `Watts reduced: ${Math.round(best.watts.wattsReducedTotal).toLocaleString()} W`,
-    `Watts controlled: ${Math.round(best.watts.wattsControlledTotal).toLocaleString()} W`,
-    `Annual energy savings: ${Math.round(best.energy.kwhSaved).toLocaleString()} kWh (~${money(best.energy.annual$)}/yr)`,
+    `Best rebate path: ${b.label}`,
+    `Project cost (materials+labor): ${money(b.projectCostTotal)}`,
+    `Total rebate: ${money(b.rebateTotal)}`,
+    `Net cost after rebates: ${money(b.netCost)}`,
+    `Watts reduced: ${Math.round(b.watts.wattsReducedTotal).toLocaleString()} W`,
+    `Watts controlled: ${Math.round(b.watts.wattsControlledTotal).toLocaleString()} W`,
+    `Annual energy savings: ${Math.round(b.energy.kwhSaved).toLocaleString()} kWh (~${money(b.energy.annual$)}/yr)`,
     `Simple payback: ${pay}`,
-    `Breakdown: ${best.breakdown.map(x=>`${x.name}=${money(x.rebate)}`).join("; ")}`
+    `Breakdown: ${b.breakdown.map(x=>`${x.name}=${money(x.rebate)}`).join("; ")}`
   ].join("\n");
 }
 
-function toCsv(payload){
-  const {results} = payload;
-  const headers = ["Scenario","Total Rebate","Net Cost","Watts Reduced","Watts Controlled","kWh Saved","$/yr Saved","Payback (yrs)","Project Cost","$/W Reduced","$/W Controlled","Offering"];
+function toCsv(){
+  if(!LAST) return "";
+  const results = LAST.all;
+  const headers = ["Scenario","Total Rebate","Net Cost","Watts Reduced","Watts Controlled","kWh Saved","$/yr Saved","Payback (yrs)","Project Cost","$/W Reduced","$/W Controlled"];
   const rows = results.map(r=>[
     `"${r.label.replaceAll('"','""')}"`,
     r.rebateTotal.toFixed(2),
@@ -517,22 +490,19 @@ function toCsv(payload){
     (r.paybackYears==null?"":r.paybackYears.toFixed(4)),
     r.projectCostTotal.toFixed(2),
     r.rateReduced.toFixed(4),
-    r.rateControlled.toFixed(4),
-    r.offeringType
+    r.rateControlled.toFixed(4)
   ].join(","));
   return headers.join(",") + "\n" + rows.join("\n");
 }
 
-// ---- init ----
-let CFG = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
-$("programConfig").value = JSON.stringify(CFG, null, 2);
-
-function addRow(){
-  const tbody = $("fixtureTable").querySelector("tbody");
-  tbody.appendChild(rowTemplate(CFG.categories));
-}
+// ---------- wire up UI ----------
 $("addRow").onclick = addRow;
-
+$("clearRows").onclick = ()=>{
+  $("fixtureTable").querySelector("tbody").innerHTML = "";
+  setStatus("Rows cleared", "warn");
+  $("results").innerHTML = "";
+  $("calcSummary").textContent = "";
+};
 $("defaultHours").onchange = ()=>{
   const tbody = $("fixtureTable").querySelector("tbody");
   [...tbody.querySelectorAll("tr")].forEach(tr=>{
@@ -541,64 +511,11 @@ $("defaultHours").onchange = ()=>{
   });
 };
 
-$("loadExample").onclick = ()=>{
-  const tbody = $("fixtureTable").querySelector("tbody");
-  tbody.innerHTML = "";
-  addRow();
-
-  const tr = tbody.querySelector("tr");
-  tr.querySelectorAll("td")[0].querySelector("input").value = "Example Fixture";
-  tr.querySelectorAll("td")[1].querySelector("select").value = "INTERIOR_DLC_FIXTURE";
-  tr.querySelectorAll("td")[2].querySelector("input").value = "1";
-  tr.querySelectorAll("td")[3].querySelector("input").value = "100";
-  tr.querySelectorAll("td")[4].querySelector("input").value = "50";
-  tr.querySelectorAll("td")[5].querySelector("input").value = "3000";
-  tr.querySelectorAll("td")[6].querySelector("select").value = "Y";
-
-  // Put your sample rates from your message:
-  $("rateWattReduced").value = "1.10";
-  $("rateWattControlled").value = "0.50";
-
-  setStatus("Example loaded", "ok");
-};
-
-$("clearRows").onclick = ()=>{
-  $("fixtureTable").querySelector("tbody").innerHTML = "";
-  setStatus("Rows cleared", "warn");
-};
-
-$("programConfig").onchange = ()=>{
-  try{
-    const parsed = JSON.parse($("programConfig").value);
-    CFG = parsed;
-    setStatus("Instant table loaded", "ok");
-  }catch(e){
-    setStatus("Instant config JSON invalid", "bad");
-  }
-};
-
-$("resetCfg").onclick = ()=>{
-  CFG = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
-  $("programConfig").value = JSON.stringify(CFG, null, 2);
-  setStatus("Instant table reset", "warn");
-};
-
-let LAST = null;
-
-$("run").onclick = ()=>{
-  try{
-    CFG = JSON.parse($("programConfig").value);
-  }catch(e){
-    setStatus("Fix Instant config JSON first", "bad");
-    return;
-  }
-  LAST = runOptimizer(CFG);
-  renderResults(LAST);
-};
+$("calculate").onclick = run;
 
 $("copyBest").onclick = async ()=>{
-  if(!LAST || !LAST.best){ setStatus("Run optimizer first", "warn"); return; }
-  const text = bestSummaryText(LAST);
+  if(!LAST || !LAST.best){ setStatus("Click Calculate first", "warn"); return; }
+  const text = bestSummaryText();
   try{
     await navigator.clipboard.writeText(text);
     setStatus("Best summary copied", "ok");
@@ -609,8 +526,8 @@ $("copyBest").onclick = async ()=>{
 };
 
 $("exportCsv").onclick = ()=>{
-  if(!LAST || !LAST.results.length){ setStatus("Run optimizer first", "warn"); return; }
-  const csv = toCsv(LAST);
+  if(!LAST || !LAST.all?.length){ setStatus("Click Calculate first", "warn"); return; }
+  const csv = toCsv();
   const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
