@@ -1265,7 +1265,59 @@ Best option:
  "&body=" + body;
  }
 
- // ---------- Wire up ----------
+ 
+// ---------- FIXED EMAIL (direct mailto, always works) ----------
+function emailResults(){
+  // Always recalc first
+  run();
+  if(!LAST || !LAST.best){
+    showStatus("Click Calculate first.", true);
+    return;
+  }
+
+  const best = LAST.best;
+  const runner = LAST.runnerUp;
+  const pay = best.paybackYears==null ? "—" : (Math.round(best.paybackYears*100)/100)+" years";
+
+  let body = `AES Rebate Optimizer Results
+
+` +
+    `Best Option: ${best.label}
+` +
+    `Rebate: ${money(best.rebateTotal)}
+` +
+    `Net Cost: ${money(best.netCost)}
+` +
+    `Watts Reduced: ${Math.round(best.watts.wattsReducedTotal).toLocaleString()} W
+` +
+    `Watts Controlled: ${Math.round(best.watts.wattsControlledTotal).toLocaleString()} W
+` +
+    `kWh Saved / Yr: ${Math.round(best.energy.kwhSaved).toLocaleString()}
+` +
+    `$ Saved / Yr: ${money(best.energy.annual$)}
+` +
+    `Simple Payback: ${pay}
+
+`;
+
+  if(runner){
+    body += `Runner-up: ${runner.label}
+Rebate: ${money(runner.rebateTotal)}
+Net Cost: ${money(runner.netCost)}
+
+`;
+  }
+
+  body += `Prepared by All Electric Sales (AES)
+847-830-8447
+jmitchell@allelectricsales.com`;
+
+  const subject = encodeURIComponent("AES Rebate Optimizer Results");
+  const mailto = `mailto:?subject=${subject}&body=${encodeURIComponent(body)}&bcc=${encodeURIComponent(BCC_EMAIL)}`;
+  window.location.href = mailto;
+}
+
+// ---------- Wire up ----------
  document.addEventListener("DOMContentLoaded", ()=>{
  // Start with 1 row
     addRow();
@@ -1325,7 +1377,7 @@ Best option:
       await generatePdf(true);
     });
 
- $("btnEmail").addEventListener("click", openEmailModal);
+ $("btnEmail").addEventListener("click", emailResults);
  $("modalClose").addEventListener("click", closeEmailModal);
  $("modalCancel").addEventListener("click", closeEmailModal);
  $("modalSend").addEventListener("click", createEmailDraft);
