@@ -3,7 +3,7 @@
 <head>
  <meta charset="utf-8" />
  <meta name="viewport" content="width=device-width, initial-scale=1" />
- <title>Rebate Optimizer (Chicago) – AES</title>
+ <title>Rebate Optimizer – AES</title>
  <meta http-equiv="cache-control" content="no-cache" />
  <meta http-equiv="expires" content="0" />
  <meta http-equiv="pragma" content="no-cache" />
@@ -371,13 +371,10 @@
  <div class="container">
  <div class="header">
  <img class="logo" src="aes-logo.png" alt="AES logo">
- <h1 class="page-title">Rebate Optimizer (Chicago)</h1>
+ <h1 class="page-title">Rebate Optimizer</h1>
  <div class="header-spacer"></div>
  </div>
- <div class="subline">
- Compare Instant vs Standard/Small Business vs Instant + Watts Controlled — best + runner‑up only.
- </div>
- <div class="stack">
+<div class="stack">
  <!-- Project Inputs -->
       <div class="panel">
         <div class="panelHeader">
@@ -491,8 +488,8 @@
  <div id="results"></div>
  <div class="divider"></div>
  <div class="btnRow">
- <button class="secondary" id="btnPdf" type="button">Print / Save PDF</button>
- <button class="secondary" id="btnEmail" type="button">Email results to yourself</button>
+ <button class="secondary" id="btnPdf" type="button">Print PDF</button>
+ <button class="secondary" id="btnEmail" type="button">Email</button>
  </div>
  <div class="small">
  PDF includes an AES cover letter with your entered contact info.
@@ -957,7 +954,7 @@
  .replace(/\\s+/g," ")
  .trim();
  }
- async function generatePdf(){
+ async function generatePdf(doPrint=false){
  if(!LAST || !LAST.best){
  showStatus("Click Calculate first.", true);
  return;
@@ -1191,7 +1188,14 @@
  drawPdfFooter(doc, i, pageCount);
  }
 
- doc.save(sanitizeFileName(jobName) + " - AES Rebate Optimizer.pdf");
+ const outName = sanitizeFileName(jobName) + " - AES Rebate Optimizer.pdf";
+    if(doPrint){
+      try{ doc.autoPrint(); }catch(e){}
+      const url = doc.output("bloburl");
+      window.open(url, "_blank");
+    }else{
+      doc.save(outName);
+    }
  }
 
  // ---------- Email ----------
@@ -1267,9 +1271,8 @@ Best option:
 
  // ---------- Wire up ----------
  document.addEventListener("DOMContentLoaded", ()=>{
- // Start with 2 rows
- addRow();
- addRow();
+ // Start with 1 row
+    addRow();
  refreshAllRowHints();
  updateQtyBadge();
  showStatus("Ready.");
@@ -1280,10 +1283,7 @@ Best option:
     bindMoneyInput("rateKwh", 0.1636);
     bindMoneyInput("projectCost", 0);
     bindMoneyInput("laborCost", 0);
-
- $("addRow").addEventListener("click", ()=>{ addRow(); refreshAllRowHints(); });
-
-    // Ensure Add Fixture Row button works
+// Ensure Add Fixture Row button works
     const addBtn = $("addRow");
     if(addBtn){
       addBtn.addEventListener("click", (e)=>{
@@ -1322,17 +1322,12 @@ Best option:
  $("calculate").addEventListener("click", run);
 
  $("btnPdf").addEventListener("click", async ()=>{
- if(!LAST || !LAST.best){
- showStatus("Click Calculate first.", true);
- return;
- }
- if(!LAST_CONTACT.name && !LAST_CONTACT.company && !LAST_CONTACT.address){
- openEmailModal();
- showStatus("Enter your info (for cover letter), then Create Email Draft or Cancel. PDF will use the entered info.", true);
- return;
- }
- await generatePdf();
- });
+      if(!LAST || !LAST.best){
+        showStatus("Click Calculate first.", true);
+        return;
+      }
+      await generatePdf(true);
+    });
 
  $("btnEmail").addEventListener("click", openEmailModal);
  $("modalClose").addEventListener("click", closeEmailModal);
