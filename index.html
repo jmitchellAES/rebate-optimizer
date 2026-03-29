@@ -1,408 +1,384 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Rebate Optimizer (Chicago) – AES</title>
-  <meta http-equiv="cache-control" content="no-cache" />
-  <meta http-equiv="expires" content="0" />
-  <meta http-equiv="pragma" content="no-cache" />
+ <meta charset="utf-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1" />
+ <title>Rebate Optimizer (Chicago) – AES</title>
+ <meta http-equiv="cache-control" content="no-cache" />
+ <meta http-equiv="expires" content="0" />
+ <meta http-equiv="pragma" content="no-cache" />
+ <style>
+ :root{
+ --brand:#0a5c7d;
+ --bg:#f4f6f8;
+ --card:#ffffff;
+ --border:#d9dee3;
+ --soft:#f8fafc;
+ --muted:#556;
+ --shadow: 0 8px 26px rgba(0,0,0,.08);
+ --okbg:#ecfdf5;
+ --okbd:#bbf7d0;
+ --oktx:#166534;
+ --warnbg:#fffbeb;
+ --warnbd:#fde68a;
+ --warntx:#92400e;
+ }
+ body{
+ font-family: Arial, sans-serif;
+ background: var(--bg);
+ margin:0;
+ padding:24px;
+ color:#111;
+ }
+ .container{
+ max-width: 1400px;
+ margin:auto;
+ background: var(--card);
+ padding:24px;
+ border-radius:12px;
+ box-shadow: var(--shadow);
+ }
+ /* Header mirrors your ROI tool: logo left, centered title, spacer right */
+ .header{
+ display:flex;
+ align-items:center;
+ margin-bottom: 10px;
+ gap: 12px;
+ }
+ .logo{
+ max-height: 62px;
+ max-width: 240px;
+ display:block;
+ flex: 0 0 auto;
+ }
+ .page-title{
+ flex: 1 1 auto;
+ text-align: center;
+ font-size: 30px;
+ font-weight: 800;
+ color: var(--brand);
+ margin: 0;
+ line-height: 1.1;
+ }
+ .header-spacer{
+ flex: 0 0 auto;
+ width: 240px;
+ }
+ @media (max-width: 900px){
+ .header{ flex-direction:column; align-items:center; gap:10px; }
+ .header-spacer{ display:none; }
+ }
+ .subline{
+ margin: 0 0 18px 0;
+ font-size: 12px;
+ color: #555;
+ text-align:center;
+ line-height:1.35;
+ }
+ /* Vertical flow: Inputs -> Fixtures -> Results */
+ .stack{
+ display:flex;
+ flex-direction:column;
+ gap: 18px;
+ }
+ label{ font-size:13px; font-weight:bold; }
+ input, select{
+ width:100%;
+ padding: 10px;
+ margin-top: 6px;
+ margin-bottom: 14px;
+ border-radius: 10px;
+ border: 1px solid var(--border);
+ background:#fff;
+ box-sizing: border-box;
+ }
+ input:focus, select:focus{
+ outline:none;
+ border-color:#a7c7d4;
+ box-shadow: 0 0 0 3px rgba(10,92,125,.12);
+ }
+ .panel{
+ border: 1px solid var(--border);
+ background: var(--soft);
+ border-radius: 12px;
+ padding: 14px;
+ }
+ .panelHeader{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:10px;
+ margin-bottom:10px;
+ flex-wrap:wrap;
+ }
+ .panelHeader h3{
+ margin:0;
+ font-size:14px;
+ color:#111;
+ }
+ .badge{
+ font-size: 11px;
+ padding: 6px 10px;
+ border-radius: 999px;
+ border: 1px solid var(--border);
+ background: #fff;
+ color:#333;
+ white-space:nowrap;
+ }
+ /* Inputs grid */
+ .gridInputs{
+ display:grid;
+ grid-template-columns: repeat(4, 1fr);
+ gap: 14px;
+ align-items:start;
+ }
+ @media (max-width: 1100px){
+ .gridInputs{ grid-template-columns: repeat(2, 1fr); }
+ }
+ @media (max-width: 640px){
+ .gridInputs{ grid-template-columns: 1fr; }
+ }
+ .span2{ grid-column: span 2; }
+ .span4{ grid-column: span 4; }
+ @media (max-width: 1100px){ .span4{ grid-column: span 2; } }
+ @media (max-width: 640px){ .span2, .span4{ grid-column: span 1; } }
 
-  <style>
-    :root{
-      --brand:#0a5c7d;
-      --bg:#f4f6f8;
-      --card:#ffffff;
-      --border:#d9dee3;
-      --soft:#f8fafc;
-      --muted:#556;
-      --shadow: 0 8px 26px rgba(0,0,0,.08);
-      --okbg:#ecfdf5;
-      --okbd:#bbf7d0;
-      --oktx:#166534;
-      --warnbg:#fffbeb;
-      --warnbd:#fde68a;
-      --warntx:#92400e;
-    }
-    body{
-      font-family: Arial, sans-serif;
-      background: var(--bg);
-      margin:0;
-      padding:24px;
-      color:#111;
-    }
-    .container{
-      max-width: 1400px;
-      margin:auto;
-      background: var(--card);
-      padding:24px;
-      border-radius:12px;
-      box-shadow: var(--shadow);
-    }
+ /* --- Input row layout overrides (per Jeff) --- */
+ .rowGrid1{ display:grid; grid-template-columns: 1fr; gap:14px; }
+ .rowGrid2{ display:grid; grid-template-columns: 1fr 1fr; gap:14px; }
+ .rowGrid3{ display:grid; grid-template-columns: 1fr 1fr 1fr; gap:14px; }
+ @media (max-width: 900px){
+   .rowGrid2, .rowGrid3{ grid-template-columns: 1fr; }
+ }
 
-    /* Header mirrors your ROI tool: logo left, centered title, spacer right */
-    .header{
-      display:flex;
-      align-items:center;
-      margin-bottom: 10px;
-      gap: 12px;
-    }
-    .logo{
-      max-height: 62px;
-      max-width: 240px;
-      display:block;
-      flex: 0 0 auto;
-    }
-    .page-title{
-      flex: 1 1 auto;
-      text-align: center;
-      font-size: 30px;
-      font-weight: 800;
-      color: var(--brand);
-      margin: 0;
-      line-height: 1.1;
-    }
-    .header-spacer{
-      flex: 0 0 auto;
-      width: 240px;
-    }
-    @media (max-width: 900px){
-      .header{ flex-direction:column; align-items:center; gap:10px; }
-      .header-spacer{ display:none; }
-    }
-    .subline{
-      margin: 0 0 18px 0;
-      font-size: 12px;
-      color: #555;
-      text-align:center;
-      line-height:1.35;
-    }
-
-    /* Vertical flow: Inputs -> Fixtures -> Results */
-    .stack{
-      display:flex;
-      flex-direction:column;
-      gap: 18px;
-    }
-
-    label{ font-size:13px; font-weight:bold; }
-    input, select{
-      width:100%;
-      padding: 10px;
-      margin-top: 6px;
-      margin-bottom: 14px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background:#fff;
-      box-sizing: border-box;
-    }
-    input:focus, select:focus{
-      outline:none;
-      border-color:#a7c7d4;
-      box-shadow: 0 0 0 3px rgba(10,92,125,.12);
-    }
-
-    .panel{
-      border: 1px solid var(--border);
-      background: var(--soft);
-      border-radius: 12px;
-      padding: 14px;
-    }
-    .panelHeader{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:10px;
-      flex-wrap:wrap;
-    }
-    .panelHeader h3{
-      margin:0;
-      font-size:14px;
-      color:#111;
-    }
-    .badge{
-      font-size: 11px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: #fff;
-      color:#333;
-      white-space:nowrap;
-    }
-
-    /* Inputs grid */
-    .gridInputs{
-      display:grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-      align-items:start;
-    }
-    @media (max-width: 1100px){
-      .gridInputs{ grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 640px){
-      .gridInputs{ grid-template-columns: 1fr; }
-    }
-    .span2{ grid-column: span 2; }
-    .span4{ grid-column: span 4; }
-    @media (max-width: 1100px){ .span4{ grid-column: span 2; } }
-    @media (max-width: 640px){ .span2, .span4{ grid-column: span 1; } }
-
-
-/* --- Input row layout overrides (per Jeff) --- */
-.rowGrid1{ display:grid; grid-template-columns: 1fr; gap:14px; }
-.rowGrid2{ display:grid; grid-template-columns: 1fr 1fr; gap:14px; }
-.rowGrid3{ display:grid; grid-template-columns: 1fr 1fr 1fr; gap:14px; }
-@media (max-width: 900px){
-  .rowGrid2, .rowGrid3{ grid-template-columns: 1fr; }
-}
-
-
-    .small{
-      font-size: 12px;
-      color: #555;
-      margin-top: 6px;
-      line-height:1.35;
-    }
-
-    /* Buttons */
-    .btnRow{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top: 6px;
-      align-items:center;
-    }
-    button{
-      padding: 10px 14px;
-      border-radius: 10px;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .primary{ background: var(--brand); color:#fff; }
-    .secondary{ background:#e8eef3; color: var(--brand); }
-    .danger{ background:#ffe6ea; color:#9b1c1c; }
-
-    .calcBtn{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      background: var(--brand);
-      color:#fff;
-      padding: 10px 14px;
-      border-radius: 10px;
-      border:none;
-    }
-    .calcBtn svg{ width:16px; height:16px; }
-
-    /* Table */
-    .tablewrap{
-      overflow:auto;
-      border-radius: 12px;
-      border:1px solid var(--border);
-      background:#fff;
-    }
-    table{
-      width:100%;
-      border-collapse: collapse;
-      min-width: 1280px; /* wider for readability */
-    }
-    th, td{
-      border: 1px solid #ccc;
-      padding: 10px;
-      text-align:left;
-      vertical-align: top;
-      font-size: 13px;
-      background:#fff;
-    }
-    th{
-      background:#f0f3f6;
-      position: sticky;   /* polish: sticky header */
-      top: 0;
-      z-index: 2;
-    }
-    td input, td select{
-      margin:0;
-      padding: 8px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-    }
-
-    .cellHint{
-      font-size:11px;
-      color:#667;
-      margin-top:6px;
-      line-height:1.25;
-    }
-
-    /* Status */
-    .status{
-      display:none;
-      margin-top:12px;
-      padding: 10px;
-      border-radius: 12px;
-      background:#f0f9ff;
-      border:1px solid #bae6fd;
-      color:#075985;
-      font-size:12px;
-    }
-    .status.warn{
-      background:#fffbeb;
-      border:1px solid #fcd34d;
-      color:#92400e;
-    }
-
-    /* Results */
-    .summaryLine{
-      margin-top: 8px;
-      font-size:12px;
-      color:#555;
-      line-height:1.35;
-    }
-    .recommend{
-      margin-top:12px;
-      padding: 10px;
-      border-radius: 12px;
-      border:1px solid #cfe7f1;
-      background:#f8fbfd;
-      color:#0b3a4f;
-      font-size:13px;
-      font-weight:700;
-    }
-    .resultCard{
-      border: 1px solid var(--border);
-      background:#fff;
-      border-radius: 12px;
-      padding: 12px;
-      margin-top: 12px;
-      box-shadow: 0 4px 14px rgba(0,0,0,.05);
-    }
-    .resultCard.best{
-      border-color: var(--okbd);
-      background: linear-gradient(180deg, #ffffff 0%, var(--okbg) 140%);
-    }
-    .resultCard.runner{
-      border-color: var(--warnbd);
-      background: linear-gradient(180deg, #ffffff 0%, var(--warnbg) 140%);
-    }
-    .tag{
-      display:inline-block;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight:bold;
-      border:1px solid var(--border);
-      background:#f8fafc;
-      color:#0f172a;
-      margin-right:8px;
-    }
-    .tag.best{ background:var(--okbg); border-color:var(--okbd); color:var(--oktx); }
-    .tag.runner{ background:var(--warnbg); border-color:var(--warnbd); color:var(--warntx); }
-
-    .kpiGrid{
-      display:grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap:10px;
-      margin-top:10px;
-    }
-    @media (max-width: 980px){
-      .kpiGrid{ grid-template-columns: 1fr 1fr; }
-    }
-    .kpi{
-      border:1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px;
-      background:#fafafa;
-    }
-    .kpi .l{ font-size: 11px; color:#555; }
-    .kpi .v{ font-size: 14px; font-weight:800; margin-top:4px; color:#111; }
-
-    .divider{
-      height:1px;
-      background:#e5e7eb;
-      margin: 14px 0;
-    }
-
-    .footer{
-      margin-top: 14px;
-      font-size: 12px;
-      color: #444;
-      border-top: 1px solid #e5e7eb;
-      padding-top: 12px;
-      line-height: 1.35;
-    }
-
-    /* Modal */
-    .modalOverlay{
-      position:fixed; inset:0;
-      background: rgba(0,0,0,.45);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding: 18px;
-      z-index: 9999;
-    }
-    .modal{
-      width: min(620px, 100%);
-      background:#fff;
-      border-radius: 14px;
-      box-shadow: 0 12px 40px rgba(0,0,0,.22);
-      overflow:hidden;
-      border: 1px solid #e5e7eb;
-    }
-    .modalHeader{
-      padding: 14px 16px;
-      background: #f0f3f6;
-      border-bottom: 1px solid #e5e7eb;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-    }
-    .modalHeader h4{ margin:0; font-size:14px; color:#111; }
-    .modalBody{ padding: 16px; }
-    .modalActions{
-      padding: 14px 16px;
-      border-top: 1px solid #e5e7eb;
-      display:flex;
-      gap:10px;
-      justify-content:flex-end;
-      flex-wrap:wrap;
-    }
-    .xBtn{
-      background: transparent;
-      border:none;
-      font-size: 18px;
-      cursor:pointer;
-      color:#111;
-      padding: 2px 6px;
-      border-radius: 8px;
-    }
-  </style>
-
-  <!-- jsPDF (same library approach as your ROI calculator) -->
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+ .small{
+ font-size: 12px;
+ color: #555;
+ margin-top: 6px;
+ line-height:1.35;
+ }
+ /* Buttons */
+ .btnRow{
+ display:flex;
+ gap:10px;
+ flex-wrap:wrap;
+ margin-top: 6px;
+ align-items:center;
+ }
+ button{
+ padding: 10px 14px;
+ border-radius: 10px;
+ border: none;
+ font-weight: bold;
+ cursor: pointer;
+ }
+ .primary{ background: var(--brand); color:#fff; }
+ .secondary{ background:#e8eef3; color: var(--brand); }
+ .danger{ background:#ffe6ea; color:#9b1c1c; }
+ .calcBtn{
+ display:inline-flex;
+ align-items:center;
+ gap:8px;
+ background: var(--brand);
+ color:#fff;
+ padding: 10px 14px;
+ border-radius: 10px;
+ border:none;
+ }
+ .calcBtn svg{ width:16px; height:16px; }
+ /* Table */
+ .tablewrap{
+ overflow:auto;
+ border-radius: 12px;
+ border:1px solid var(--border);
+ background:#fff;
+ }
+ table{
+ width:100%;
+ border-collapse: collapse;
+ min-width: 1280px; /* wider for readability */
+ }
+ th, td{
+ border: 1px solid #ccc;
+ padding: 10px;
+ text-align:left;
+ vertical-align: top;
+ font-size: 13px;
+ background:#fff;
+ }
+ th{
+ background:#f0f3f6;
+ position: sticky; /* polish: sticky header */
+ top: 0;
+ z-index: 2;
+ }
+ td input, td select{
+ margin:0;
+ padding: 8px;
+ border-radius: 10px;
+ border: 1px solid var(--border);
+ }
+ .cellHint{
+ font-size:11px;
+ color:#667;
+ margin-top:6px;
+ line-height:1.25;
+ }
+ /* Status */
+ .status{
+ display:none;
+ margin-top:12px;
+ padding: 10px;
+ border-radius: 12px;
+ background:#f0f9ff;
+ border:1px solid #bae6fd;
+ color:#075985;
+ font-size:12px;
+ }
+ .status.warn{
+ background:#fffbeb;
+ border:1px solid #fcd34d;
+ color:#92400e;
+ }
+ /* Results */
+ .summaryLine{
+ margin-top: 8px;
+ font-size:12px;
+ color:#555;
+ line-height:1.35;
+ }
+ .recommend{
+ margin-top:12px;
+ padding: 10px;
+ border-radius: 12px;
+ border:1px solid #cfe7f1;
+ background:#f8fbfd;
+ color:#0b3a4f;
+ font-size:13px;
+ font-weight:700;
+ }
+ .resultCard{
+ border: 1px solid var(--border);
+ background:#fff;
+ border-radius: 12px;
+ padding: 12px;
+ margin-top: 12px;
+ box-shadow: 0 4px 14px rgba(0,0,0,.05);
+ }
+ .resultCard.best{
+ border-color: var(--okbd);
+ background: linear-gradient(180deg, #ffffff 0%, var(--okbg) 140%);
+ }
+ .resultCard.runner{
+ border-color: var(--warnbd);
+ background: linear-gradient(180deg, #ffffff 0%, var(--warnbg) 140%);
+ }
+ .tag{
+ display:inline-block;
+ padding: 6px 10px;
+ border-radius: 999px;
+ font-size: 11px;
+ font-weight:bold;
+ border:1px solid var(--border);
+ background:#f8fafc;
+ color:#0f172a;
+ margin-right:8px;
+ }
+ .tag.best{ background:var(--okbg); border-color:var(--okbd); color:var(--oktx); }
+ .tag.runner{ background:var(--warnbg); border-color:var(--warnbd); color:var(--warntx); }
+ .kpiGrid{
+ display:grid;
+ grid-template-columns: repeat(5, 1fr);
+ gap:10px;
+ margin-top:10px;
+ }
+ @media (max-width: 980px){
+ .kpiGrid{ grid-template-columns: 1fr 1fr; }
+ }
+ .kpi{
+ border:1px solid var(--border);
+ border-radius: 12px;
+ padding: 10px;
+ background:#fafafa;
+ }
+ .kpi .l{ font-size: 11px; color:#555; }
+ .kpi .v{ font-size: 14px; font-weight:800; margin-top:4px; color:#111; }
+ .divider{
+ height:1px;
+ background:#e5e7eb;
+ margin: 14px 0;
+ }
+ .footer{
+ margin-top: 14px;
+ font-size: 12px;
+ color: #444;
+ border-top: 1px solid #e5e7eb;
+ padding-top: 12px;
+ line-height: 1.35;
+ }
+ /* Modal */
+ .modalOverlay{
+ position:fixed; inset:0;
+ background: rgba(0,0,0,.45);
+ display:none;
+ align-items:center;
+ justify-content:center;
+ padding: 18px;
+ z-index: 9999;
+ }
+ .modal{
+ width: min(620px, 100%);
+ background:#fff;
+ border-radius: 14px;
+ box-shadow: 0 12px 40px rgba(0,0,0,.22);
+ overflow:hidden;
+ border: 1px solid #e5e7eb;
+ }
+ .modalHeader{
+ padding: 14px 16px;
+ background: #f0f3f6;
+ border-bottom: 1px solid #e5e7eb;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ gap:10px;
+ }
+ .modalHeader h4{ margin:0; font-size:14px; color:#111; }
+ .modalBody{ padding: 16px; }
+ .modalActions{
+ padding: 14px 16px;
+ border-top: 1px solid #e5e7eb;
+ display:flex;
+ gap:10px;
+ justify-content:flex-end;
+ flex-wrap:wrap;
+ }
+ .xBtn{
+ background: transparent;
+ border:none;
+ font-size: 18px;
+ cursor:pointer;
+ color:#111;
+ padding: 2px 6px;
+ border-radius: 8px;
+ }
+ </style>
+ <!-- jsPDF (same library approach as your ROI calculator) -->
+ <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
-
 <body>
-  <div class="container">
-
-    <div class="header">
-      <img class="logo" src="aes-logo.png" alt="AES logo">
-      <h1 class="page-title">Rebate Optimizer (Chicago)</h1>
-      <div class="header-spacer"></div>
-    </div>
-
-    <div class="subline">
-      Compare Instant vs Standard/Small Business vs Instant + Watts Controlled — best + runner‑up only.
-    </div>
-
-    <div class="stack">
-
-      <!-- Project Inputs -->
+ <div class="container">
+ <div class="header">
+ <img class="logo" src="aes-logo.png" alt="AES logo">
+ <h1 class="page-title">Rebate Optimizer (Chicago)</h1>
+ <div class="header-spacer"></div>
+ </div>
+ <div class="subline">
+ Compare Instant vs Standard/Small Business vs Instant + Watts Controlled — best + runner‑up only.
+ </div>
+ <div class="stack">
+ <!-- Project Inputs -->
       <div class="panel">
         <div class="panelHeader">
           <h3>Project Inputs</h3>
@@ -444,7 +420,8 @@
 
           <div>
             <label>Electric rate ($/kWh)</label>
-            <input id="rateKwh" type="text" inputmode="decimal" placeholder="$0.00">
+            <input id="rateKwh" type="text" inputmode="decimal" placeholder="$0.00" value="0.1636">
+            <div class="small" style="margin-top:-8px;">Average Illinois Electric Rate</div>
           </div>
         </div>
 
@@ -466,118 +443,103 @@
       </div>
 
       <!-- Fixtures -->
-      <div class="panel">
-        <div class="panelHeader">
-          <h3>Fixtures</h3>
-          <span class="badge">Instant Category drives Instant $/unit</span>
-        </div>
-
-        <div class="tablewrap">
-          <table id="fixtureTable">
-            <thead>
-              <tr>
-                <th style="min-width:240px">Line name</th>
-                <th style="min-width:300px">Instant Category</th>
-                <th style="min-width:90px">Qty</th>
-                <th style="min-width:120px">Existing W</th>
-                <th style="min-width:120px">Proposed W</th>
-                <th style="min-width:120px">Hours/yr</th>
-                <th style="min-width:130px">Controls? (Y/N)</th>
-                <th style="width:86px">Remove</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-
-        <div class="btnRow" style="margin-top:12px;">
-          <button class="secondary" id="addRow" type="button">+ Add fixture row</button>
-          <button class="danger" id="clearRows" type="button">Clear rows</button>
-        </div>
-
-        <div class="small">
-          This tool estimates rebates; verify eligibility and final program rules.
-        </div>
-      </div>
-
-      <!-- Results -->
-      <div class="panel">
-        <div class="panelHeader">
-          <h3>Results</h3>
-          <button id="calculate" class="calcBtn" type="button" title="Run full calculation">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M5 4h14a2 2 0 0 1 2 2v14l-4-3-4 3-4-3-4 3V6a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.6" />
-              <path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-            </svg>
-            Calculate
-          </button>
-        </div>
-
-        <div id="status" class="status"></div>
-        <div class="summaryLine" id="calcSummary"></div>
-
-        <div class="recommend" id="recommendLine" style="display:none;"></div>
-
-        <div id="results"></div>
-
-        <div class="divider"></div>
-
-        <div class="btnRow">
-          <button class="secondary" id="btnPdf" type="button">Print / Save PDF</button>
-          <button class="secondary" id="btnEmail" type="button">Email results to yourself</button>
-        </div>
-
-        <div class="small">
-          PDF includes an AES cover letter with your entered contact info.
-        </div>
-      </div>
-
-    </div>
-
-    <div class="footer">
-      Prepared by <b>All Electric Sales (AES)</b>
-    </div>
-
-  </div>
-
-  <!-- Email Modal -->
-  <div class="modalOverlay" id="modalOverlay" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <div class="modalHeader">
-        <h4 id="modalTitle">Email / PDF Cover Letter Details</h4>
-        <button class="xBtn" id="modalClose" type="button" aria-label="Close">✕</button>
-      </div>
-      <div class="modalBody">
-        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;">
-          <div>
-            <label>Your name</label>
-            <input id="mName" type="text" placeholder="e.g., John Smith">
-          </div>
-          <div>
-            <label>Your company</label>
-            <input id="mCompany" type="text" placeholder="e.g., ABC Electric">
-          </div>
-          <div style="grid-column: span 2;">
-            <label>Your address</label>
-            <input id="mAddress" type="text" placeholder="Street, City, State ZIP">
-          </div>
-          <div style="grid-column: span 2;">
-            <label>Your email (To:)</label>
-            <input id="mEmail" type="email" placeholder="you@company.com">
-            <div class="small">This creates an email draft in your email app.</div>
-          </div>
-        </div>
-      </div>
-      <div class="modalActions">
-        <button class="secondary" id="modalCancel" type="button">Cancel</button>
-        <button class="primary" id="modalSend" type="button">Create Email Draft</button>
-      </div>
-    </div>
-  </div>
-
+ <div class="panel">
+ <div class="panelHeader">
+ <h3>Fixtures</h3>
+ <span class="badge">Instant Category drives Instant $/unit</span>
+ </div>
+ <div class="tablewrap">
+ <table id="fixtureTable">
+ <thead>
+ <tr>
+ <th style="min-width:240px">Line name</th>
+ <th style="min-width:300px">Instant Category</th>
+ <th style="min-width:90px">Qty</th>
+ <th style="min-width:120px">Existing W</th>
+ <th style="min-width:120px">Proposed W</th>
+ <th style="min-width:120px">Hours/yr</th>
+ <th style="min-width:130px">Controls? (Y/N)</th>
+ <th style="width:86px">Remove</th>
+ </tr>
+ </thead>
+ <tbody></tbody>
+ </table>
+ </div>
+ <div class="btnRow" style="margin-top:12px;">
+ <button class="secondary" id="addRow" type="button">+ Add fixture row</button>
+ <button class="danger" id="clearRows" type="button">Clear rows</button>
+ </div>
+ <div class="small">
+ This tool estimates rebates; verify eligibility and final program rules.
+ </div>
+ </div>
+ <!-- Results -->
+ <div class="panel">
+ <div class="panelHeader">
+ <h3>Results</h3>
+ <button id="calculate" class="calcBtn" type="button" title="Run full calculation">
+ <svg viewBox="0 0 24 24" fill="none">
+ <path d="M5 4h14a2 2 0 0 1 2 2v14l-4-3-4 3-4-3-4 3V6a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.6" />
+ <path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+ </svg>
+ Calculate
+ </button>
+ </div>
+ <div id="status" class="status"></div>
+ <div class="summaryLine" id="calcSummary"></div>
+ <div class="recommend" id="recommendLine" style="display:none;"></div>
+ <div id="results"></div>
+ <div class="divider"></div>
+ <div class="btnRow">
+ <button class="secondary" id="btnPdf" type="button">Print / Save PDF</button>
+ <button class="secondary" id="btnEmail" type="button">Email results to yourself</button>
+ </div>
+ <div class="small">
+ PDF includes an AES cover letter with your entered contact info.
+ </div>
+ </div>
+ </div>
+ <div class="footer">
+ Prepared by <b>All Electric Sales (AES)</b>
+ </div>
+ </div>
+ <!-- Email Modal -->
+ <div class="modalOverlay" id="modalOverlay" aria-hidden="true">
+ <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+ <div class="modalHeader">
+ <h4 id="modalTitle">Email / PDF Cover Letter Details</h4>
+ <button class="xBtn" id="modalClose" type="button" aria-label="Close">✕</button>
+ </div>
+ <div class="modalBody">
+ <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;">
+ <div>
+ <label>Your name</label>
+ <input id="mName" type="text" placeholder="e.g., John Smith">
+ </div>
+ <div>
+ <label>Your company</label>
+ <input id="mCompany" type="text" placeholder="e.g., ABC Electric">
+ </div>
+ <div style="grid-column: span 2;">
+ <label>Your address</label>
+ <input id="mAddress" type="text" placeholder="Street, City, State ZIP">
+ </div>
+ <div style="grid-column: span 2;">
+ <label>Your email (To:)</label>
+ <input id="mEmail" type="email" placeholder="you@company.com">
+ <div class="small">This creates an email draft in your email app.</div>
+ </div>
+ </div>
+ </div>
+ <div class="modalActions">
+ <button class="secondary" id="modalCancel" type="button">Cancel</button>
+ <button class="primary" id="modalSend" type="button">Create Email Draft</button>
+ </div>
+ </div>
+ </div>
 <script>
 (function(){
-  const $ = (id)=>document.getElementById(id);
+ const $ = (id)=>document.getElementById(id);
 
   // --- Formatting helpers (currency + watts) ---
   function parseNumberLoose(v){
@@ -608,6 +570,12 @@
       const raw = parseNumberLoose(el.value);
       el.value = formatMoney(raw);
     });
+    el.addEventListener("keydown", (e)=>{
+      if(e.key === "Enter"){
+        e.preventDefault();
+        el.blur();
+      }
+    });
   }
   function formatWatts(n){
     n = Math.round(parseNumberLoose(n));
@@ -624,769 +592,614 @@
       const raw = parseNumberLoose(inputEl.value);
       inputEl.value = raw ? formatWatts(raw) : "";
     });
-  }
-
-
-  // *** Not displayed anywhere on the page ***
-  const BCC_EMAIL = "jmitchell@allelectricsales.com";
-
-  // Instant tables (locked logic)
-  const CONFIG = {
-    instantTables: {
-      "INTERIOR_DLC_FIXTURE": [
-        { minW: 0,   maxW: 60,  incentive: 30 },
-        { minW: 60,  maxW: 120, incentive: 80 },
-        { minW: 120, maxW: 200, incentive: 160 },
-        { minW: 200, maxW: 300, incentive: 300 },
-        { minW: 300, maxW: 500, incentive: 500 }
-      ],
-      "EXTERIOR_DLC_FIXTURE": [
-        { minW: 0,   maxW: 60,  incentive: 37 },
-        { minW: 60,  maxW: 120, incentive: 100 },
-        { minW: 120, maxW: 200, incentive: 200 },
-        { minW: 200, maxW: 300, incentive: 350 },
-        { minW: 300, maxW: 500, incentive: 550 }
-      ],
-      "TLED_LINEAR_LAMP": [{ any:true, incentive: 7 }],
-      "TLED_TYPE_C":      [{ any:true, incentive: 10 }],
-      "PIN_BASE_LED":     [{ any:true, incentive: 10 }]
-    },
-    categories: [
-      { key:"INTERIOR_DLC_FIXTURE", label:"Interior DLC fixture (Instant)" },
-      { key:"EXTERIOR_DLC_FIXTURE", label:"Exterior DLC fixture (Instant)" },
-      { key:"TLED_LINEAR_LAMP", label:"Linear LED lamp (TLED)" },
-      { key:"TLED_TYPE_C", label:"Linear LED lamp (Type C)" },
-      { key:"PIN_BASE_LED", label:"Pin-base LED" },
-      { key:"OTHER", label:"Other / not Instant (STA/SBO only)" }
-    ]
-  };
-
-  let LAST = null;
-  let LAST_CONTACT = { name:"", company:"", address:"", email:"" };
-
-  function num(x){ return parseNumberLoose(x); }
-  function clampNonNeg(n){ n = parseNumberLoose(n); return n < 0 ? 0 : n; }
-  function money(x){ return formatMoney(x); });
-    return "$"+s;
-  }
-
-  function showStatus(msg, warn=false){
-    const el = $("status");
-    el.style.display="block";
-    el.className = "status" + (warn ? " warn" : "");
-    el.textContent = msg;
-  }
-
-  function clearStatus(){
-    $("status").style.display="none";
-    $("status").textContent="";
-  }
-
-  function updateQtyBadge(){
-    const rows = getRows();
-    const totalQty = rows.reduce((s,r)=>s + (r.qty||0), 0);
-    $("qtyBadge").textContent = `Total fixtures: ${totalQty.toLocaleString()}`;
-  }
-
-  // Per-row instant subtotal calc for mini preview (doesn't change core calc)
-  function instantPerUnit(category, proposedW){
-    const rules = CONFIG.instantTables[category];
-    if(!rules) return 0;
-    const anyRule = rules.find(x=>x.any);
-    if(anyRule) return anyRule.incentive || 0;
-    const w = proposedW;
-    const match = rules.find(x => w > x.minW && w <= x.maxW) || rules.find(x => w >= x.minW && w <= x.maxW);
-    return match ? (match.incentive || 0) : 0;
-  }
-
-  function rowTemplate(){
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>
-        <input placeholder="e.g., 2x4 Troffer" value="">
-        <div class="cellHint">WR: 0W • WC: 0W • Instant: $0</div>
-      </td>
-      <td>
-        <select>
-          ${CONFIG.categories.map(c=>`<option value="${c.key}">${c.label}</option>`).join("")}
-        </select>
-      </td>
-      <td><input type="number" value="1" min="0" step="1" inputmode="numeric"></td>
-      <td><input class="wattInput" type="text" inputmode="numeric" placeholder="0 W"></td>
-      <td><input class="wattInput" type="text" inputmode="numeric" placeholder="0 W"></td>
-      <td><input type="number" value="${$("defaultHours").value||3000}" min="0" step="50" inputmode="numeric"></td>
-      <td>
-        <select>
-          <option value="N">N</option>
-          <option value="Y">Y</option>
-        </select>
-      </td>
-      <td><button class="danger" type="button">X</button></td>
-    `;
-
-    // remove
-    tr.querySelector("button").onclick = ()=> {
-      tr.remove();
-      updateQtyBadge();
-      refreshAllRowHints();
-    };
-
-    // auto-select on focus (polish)
-    tr.querySelectorAll("input").forEach(inp=>{
-      inp.addEventListener("focus", ()=> inp.select());
-      inp.addEventListener("wheel", (e)=>{ if(document.activeElement === inp) e.preventDefault(); }, {passive:false});
+    inputEl.addEventListener("keydown", (e)=>{
+      if(e.key === "Enter"){
+        e.preventDefault();
+        inputEl.blur();
+      }
     });
+  }
 
-    // clamp non-negative on blur + update hint
-    tr.querySelectorAll("input").forEach(inp=>{
-      inp.addEventListener("blur", ()=>{
-        if(inp.type === "number"){
-          inp.value = clampNonNeg(inp.value);
-        }
-        refreshRowHint(tr);
-        updateQtyBadge();
-      });
-      inp.addEventListener("input", ()=>{
-        refreshRowHint(tr);
-        updateQtyBadge();
-      });
-    });
+ // *** Not displayed anywhere on the page ***
+ const BCC_EMAIL = "jmitchell@allelectricsales.com";
+ // Instant tables (locked logic)
+ const CONFIG = {
+ instantTables: {
+ "INTERIOR_DLC_FIXTURE": [
+ { minW: 0, maxW: 60, incentive: 30 },
+ { minW: 60, maxW: 120, incentive: 80 },
+ { minW: 120, maxW: 200, incentive: 160 },
+ { minW: 200, maxW: 300, incentive: 300 },
+ { minW: 300, maxW: 500, incentive: 500 }
+ ],
+ "EXTERIOR_DLC_FIXTURE": [
+ { minW: 0, maxW: 60, incentive: 37 },
+ { minW: 60, maxW: 120, incentive: 100 },
+ { minW: 120, maxW: 200, incentive: 200 },
+ { minW: 200, maxW: 300, incentive: 350 },
+ { minW: 300, maxW: 500, incentive: 550 }
+ ],
+ "TLED_LINEAR_LAMP": [{ any:true, incentive: 7 }],
+ "TLED_TYPE_C": [{ any:true, incentive: 10 }],
+ "PIN_BASE_LED": [{ any:true, incentive: 10 }]
+ },
+ categories: [
+ { key:"INTERIOR_DLC_FIXTURE", label:"Interior DLC fixture (Instant)" },
+ { key:"EXTERIOR_DLC_FIXTURE", label:"Exterior DLC fixture (Instant)" },
+ { key:"TLED_LINEAR_LAMP", label:"Linear LED lamp (TLED)" },
+ { key:"TLED_TYPE_C", label:"Linear LED lamp (Type C)" },
+ { key:"PIN_BASE_LED", label:"Pin-base LED" },
+ { key:"OTHER", label:"Other / not Instant (STA/SBO only)" }
+ ]
+ };
+ let LAST = null;
+ let LAST_CONTACT = { name:"", company:"", address:"", email:"" };
+ function num(x){ return parseNumberLoose(x); }
+ function clampNonNeg(n){ n = parseNumberLoose(n); return n < 0 ? 0 : n; }
+ function money(x){ return formatMoney(x); }
+ function showStatus(msg, warn=false){
+ const el = $("status");
+ el.style.display="block";
+ el.className = "status" + (warn ? " warn" : "");
+ el.textContent = msg;
+ }
+ function clearStatus(){
+ $("status").style.display="none";
+ $("status").textContent="";
+ }
+ function updateQtyBadge(){
+ const rows = getRows();
+ const totalQty = rows.reduce((s,r)=>s + (r.qty||0), 0);
+ $("qtyBadge").textContent = `Total fixtures: ${totalQty.toLocaleString()}`;
+ }
+ // Per-row instant subtotal calc for mini preview (doesn't change core calc)
+ function instantPerUnit(category, proposedW){
+ const rules = CONFIG.instantTables[category];
+ if(!rules) return 0;
+ const anyRule = rules.find(x=>x.any);
+ if(anyRule) return anyRule.incentive || 0;
+ const w = proposedW;
+ const match = rules.find(x => w > x.minW && w <= x.maxW) || rules.find(x => w >= x.minW && w <= x.maxW);
+ return match ? (match.incentive || 0) : 0;
+ }
+ function rowTemplate(){
+ const tr = document.createElement("tr");
+ tr.innerHTML = `
+ <td>
+ <input placeholder="e.g., 2x4 Troffer" value="">
+ <div class="cellHint">WR: 0W • WC: 0W • Instant: $0</div>
+ </td>
+ <td>
+ <select>
+ ${CONFIG.categories.map(c=>`<option value="${c.key}">${c.label}</option>`).join("")}
+ </select>
+ </td>
+ <td><input type="number" value="1" min="0" step="1" inputmode="numeric"></td>
+ <td><input class="wattInput" type="text" inputmode="numeric" placeholder="0 W"></td>
+ <td><input class="wattInput" type="text" inputmode="numeric" placeholder="0 W"></td>
+ <td><input type="number" value="${$("defaultHours").value||3000}" min="0" step="50" inputmode="numeric"></td>
+ <td>
+ <select>
+ <option value="N">N</option>
+ <option value="Y">Y</option>
+ </select>
+ </td>
+ <td><button class="danger" type="button">X</button></td>
+ `;
+ // remove
+ tr.querySelector("button").onclick = ()=>{
+ tr.remove();
+ updateQtyBadge();
+ refreshAllRowHints();
+ };
+ // auto-select on focus (polish)
+ tr.querySelectorAll("input").forEach(inp=>{
+ inp.addEventListener("focus", ()=> inp.select());
+ inp.addEventListener("wheel", (e)=>{ if(document.activeElement === inp) e.preventDefault(); }, {passive:false});
+ });
+ // clamp non-negative on blur + update hint
+ tr.querySelectorAll("input").forEach(inp=>{
+ inp.addEventListener("blur", ()=>{
+ if(inp.type === "number"){
+ inp.value = clampNonNeg(inp.value);
+ }
+ refreshRowHint(tr);
+ updateQtyBadge();
+ });
+ inp.addEventListener("input", ()=>{
+ refreshRowHint(tr);
+ updateQtyBadge();
+ });
+ });
+ // selects update hint
+ tr.querySelectorAll("select").forEach(sel=>{
+ sel.addEventListener("change", ()=>{
+ refreshRowHint(tr);
+ updateQtyBadge();
+ });
+ });
 
-    // selects update hint
-    tr.querySelectorAll("select").forEach(sel=>{
-      sel.addEventListener("change", ()=>{
-        refreshRowHint(tr);
-        updateQtyBadge();
-      });
-    });
-
-        // Format watts fields with trailing " W"
+    // Format watts fields with trailing " W"
     tr.querySelectorAll(".wattInput").forEach(inp=>bindWattsInput(inp));
 
-    return tr;
-  }
-
-  function addRow(){
-    $("fixtureTable").querySelector("tbody").appendChild(rowTemplate());
-    updateQtyBadge();
-    refreshAllRowHints();
-  }
-
-  function getRows(){
-    const tbody = $("fixtureTable").querySelector("tbody");
-    return [...tbody.querySelectorAll("tr")].map(tr=>{
-      const tds = tr.querySelectorAll("td");
-
-      const nameInput = tds[0].querySelector("input");
-      const hintDiv = tds[0].querySelector(".cellHint");
-
-      const category = tds[1].querySelector("select").value;
-      const qty = clampNonNeg(tds[2].querySelector("input").value);
-      const wOld = clampNonNeg(tds[3].querySelector("input").value);
-      const wNew = clampNonNeg(tds[4].querySelector("input").value);
-      const hours = clampNonNeg(tds[5].querySelector("input").value);
-      const controls = tds[6].querySelector("select").value;
-
-      return {
-        tr,
-        name: (nameInput.value.trim() || "Line"),
-        hintDiv,
-        category, qty, wOld, wNew, hours, controls
-      };
-    }).filter(r=>r.qty>0);
-  }
-
-  function refreshRowHint(tr){
-    const tds = tr.querySelectorAll("td");
-    if(!tds.length) return;
-
-    const hint = tds[0].querySelector(".cellHint");
-    const category = tds[1].querySelector("select").value;
-    const qty = clampNonNeg(tds[2].querySelector("input").value);
-    const wOld = clampNonNeg(tds[3].querySelector("input").value);
-    const wNew = clampNonNeg(tds[4].querySelector("input").value);
-    const controls = tds[6].querySelector("select").value;
-
-    const wr = Math.max(wOld - wNew, 0) * qty;
-    const wc = (controls === "Y" ? Math.max(wNew,0) * qty : 0);
-
-    const perUnit = instantPerUnit(category, wNew);
-    const instantSub = perUnit * qty;
-
-    hint.textContent = `WR: ${Math.round(wr).toLocaleString()}W • WC: ${Math.round(wc).toLocaleString()}W • Instant: ${money(instantSub)}`;
-  }
-
-  function refreshAllRowHints(){
-    $("fixtureTable").querySelectorAll("tbody tr").forEach(tr => refreshRowHint(tr));
-  }
-
-  // LOCKED calc logic
-  function calcEnergy(rows, rateKwh){
-    let kwhSaved=0;
-    rows.forEach(r=>{
-      const dW = (r.wOld - r.wNew);
-      kwhSaved += (dW * r.qty * r.hours)/1000;
-    });
-    return { kwhSaved, annual$: kwhSaved * rateKwh };
-  }
-
-  function calcWatts(rows){
-    let wattsReducedTotal = 0;
-    let wattsControlledTotal = 0;
-    rows.forEach(r=>{
-      wattsReducedTotal += Math.max(r.wOld - r.wNew, 0) * r.qty;
-      if(r.controls==="Y"){
-        wattsControlledTotal += Math.max(r.wNew, 0) * r.qty;
-      }
-    });
-    return { wattsReducedTotal, wattsControlledTotal };
-  }
-
-  function instantRebate(rows){
-    let rebate = 0;
-    rows.forEach(r=>{
-      const per = instantPerUnit(r.category, r.wNew);
-      rebate += per * r.qty;
-    });
-    return rebate;
-  }
-
-  function staSboRebate(rows, rateReduced, rateControlled){
-    const { wattsReducedTotal, wattsControlledTotal } = calcWatts(rows);
-    return (wattsReducedTotal * rateReduced) + (wattsControlledTotal * rateControlled);
-  }
-
-  function controlledOnlyRebate(rows, rateControlled){
-    const { wattsControlledTotal } = calcWatts(rows);
-    return wattsControlledTotal * rateControlled;
-  }
-
-  function run(){
-    clearStatus();
-    $("recommendLine").style.display = "none";
-    $("recommendLine").textContent = "";
-
-    const rows = getRows();
-    if(rows.length===0){
-      $("results").innerHTML = "";
-      $("calcSummary").textContent = "";
-      showStatus("Add at least one fixture row.", true);
-      updateQtyBadge();
-      return;
-    }
-
-    const rateKwh = clampNonNeg($("rateKwh").value);
-    const projectCostTotal = clampNonNeg($("projectCost").value) + clampNonNeg($("laborCost").value);
-    const rateReduced = clampNonNeg($("rateWattReduced").value);
-    const rateControlled = clampNonNeg($("rateWattControlled").value);
-    const offeringType = $("offeringType").value;
-
-    const energy = calcEnergy(rows, rateKwh);
-    const watts = calcWatts(rows);
-
-    const rebateInstant = instantRebate(rows);
-    const rebateStaSbo = staSboRebate(rows, rateReduced, rateControlled);
-    const rebateInstantPlusControlled = rebateInstant + controlledOnlyRebate(rows, rateControlled);
-
-    const scenarios = [
-      { label:"Instant Only", rebateTotal: rebateInstant, breakdown:[{name:"Instant", rebate: rebateInstant}] },
-      {
-        label: (offeringType==="SMALL_BIZ"
-          ? "Small Business Only (Watts Reduced + Watts Controlled)"
-          : "Standard Only (Watts Reduced + Watts Controlled)"),
-        rebateTotal: rebateStaSbo,
-        breakdown:[{name:(offeringType==="SMALL_BIZ"?"Small Business":"Standard"), rebate: rebateStaSbo}]
-      },
-      {
-        label:"Instant + Watts Controlled",
-        rebateTotal: rebateInstantPlusControlled,
-        breakdown:[
-          {name:"Instant", rebate: rebateInstant},
-          {name:"Watts Controlled", rebate: controlledOnlyRebate(rows, rateControlled)}
-        ]
-      }
-    ].map(s=>{
-      const netCost = Math.max(projectCostTotal - s.rebateTotal, 0);
-      const paybackYears = energy.annual$>0 ? (netCost / energy.annual$) : null;
-      return { ...s, netCost, paybackYears, energy, watts, projectCostTotal, rateReduced, rateControlled, offeringType };
-    }).sort((a,b)=>{
-      if(a.netCost !== b.netCost) return a.netCost - b.netCost;
-      if(b.rebateTotal !== a.rebateTotal) return b.rebateTotal - a.rebateTotal;
-      const ap = (a.paybackYears==null)?1e9:a.paybackYears;
-      const bp = (b.paybackYears==null)?1e9:b.paybackYears;
-      return ap - bp;
-    });
-
-   LAST = { best: scenarios[0], runnerUp: scenarios[1] || null, all: scenarios, rows };
-
-    $("calcSummary").textContent =
-      `Project cost: ${money(projectCostTotal)} • Watts reduced: ${Math.round(watts.wattsReducedTotal).toLocaleString()} W • ` +
-      `Watts controlled: ${Math.round(watts.wattsControlledTotal).toLocaleString()} W • ` +
-      `kWh saved: ${Math.round(energy.kwhSaved).toLocaleString()} • $/yr saved: ${money(energy.annual$)}`;
-
-    // Polished recommendation line
-    if(LAST.runnerUp){
-      const delta = LAST.best.rebateTotal - LAST.runnerUp.rebateTotal;
-      const msg = `Recommended: ${LAST.best.label} — it provides ${money(Math.abs(delta))} ${delta>=0 ? "MORE" : "LESS"} rebate than the runner‑up.`;
-      $("recommendLine").textContent = msg;
-      $("recommendLine").style.display = "block";
-    } else {
-      $("recommendLine").textContent = `Recommended: ${LAST.best.label}`;
-      $("recommendLine").style.display = "block";
-    }
-
-    renderTopTwo();
-    showStatus("Calculation complete.");
-    updateQtyBadge();
-  }
-
-  function renderScenarioCard(s, tagText, tagClass, cardClass){
-    const pay = s.paybackYears==null ? "—" : (Math.round(s.paybackYears*100)/100)+" yrs";
-
-    const div = document.createElement("div");
-    div.className = "resultCard " + (cardClass || "");
-    div.innerHTML = `
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-        <div>
-          <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;">
-            <span class="tag ${tagClass}">${tagText}</span>
-            <div style="font-weight:800;font-size:14px;">${s.label}</div>
-          </div>
-          <div class="small" style="margin-top:6px;">
-            Breakdown: ${s.breakdown.map(b=>`${b.name} (${money(b.rebate)})`).join(" • ")}
-          </div>
-          <div class="small" style="margin-top:2px;">
-            Inputs used: $/W reduced=${s.rateReduced} • $/W controlled=${s.rateControlled}
-          </div>
-        </div>
-      </div>
-
-      <div class="kpiGrid">
-        <div class="kpi"><div class="l">Total rebate</div><div class="v">${money(s.rebateTotal)}</div></div>
-        <div class="kpi"><div class="l">Net cost</div><div class="v">${money(s.netCost)}</div></div>
-        <div class="kpi"><div class="l">Watts reduced</div><div class="v">${Math.round(s.watts.wattsReducedTotal).toLocaleString()} W</div></div>
-        <div class="kpi"><div class="l">Watts controlled</div><div class="v">${Math.round(s.watts.wattsControlledTotal).toLocaleString()} W</div></div>
-        <div class="kpi"><div class="l">Simple payback</div><div class="v">${pay}</div></div>
-      </div>
-    `;
-    return div;
-  }
-
-  function renderTopTwo(){
-    const box = $("results");
-    box.innerHTML = "";
-    if(!LAST || !LAST.best) return;
-
-    box.appendChild(renderScenarioCard(LAST.best, "Best", "best", "best"));
-    if(LAST.runnerUp){
-      box.appendChild(renderScenarioCard(LAST.runnerUp, "Runner‑up", "runner", "runner"));
-    }
-  }
-
-  // ---------- PDF (AES header styling mirrors your ROI tool approach) ----------
-  function fmtDate(d){
-    const mm = String(d.getMonth()+1).padStart(2,"0");
-    const dd = String(d.getDate()).padStart(2,"0");
-    const yyyy = d.getFullYear();
-    return `${mm}/${dd}/${yyyy}`;
-  }
-
-  async function imgToDataUrl(img){
-    const c = document.createElement("canvas");
-    c.width = img.naturalWidth || img.width;
-    c.height = img.naturalHeight || img.height;
-    const ctx = c.getContext("2d");
-    ctx.drawImage(img, 0, 0);
-    return c.toDataURL("image/png");
-  }
-
-  function drawPdfHeader(doc, logoDataUrl, dateStr){
-    const pageW = doc.internal.pageSize.getWidth();
-    doc.setFillColor(255,255,255);
-    doc.rect(0, 0, pageW, 24, "F");
-    doc.addImage(logoDataUrl, "PNG", 12, 7, 26, 10);
-    doc.setTextColor(0,0,0);
-    doc.setFont("times","bold");
-    doc.setFontSize(14);
-    doc.text("AES Rebate Optimizer Report", pageW/2, 15, {align:"center"});
-    doc.setFont("times","normal");
-    doc.setFontSize(10);
-    doc.text(dateStr, pageW-12, 16, {align:"right"});
-    doc.setDrawColor(220);
-    doc.line(12, 24, pageW-12, 24);
-  }
-
-  function drawPdfFooter(doc, pageNum, pageCount){
-    const pageW = doc.internal.pageSize.getWidth();
-    const pageH = doc.internal.pageSize.getHeight();
-    doc.setDrawColor(220);
-    doc.line(12, pageH-14, pageW-12, pageH-14);
-    doc.setFont("times","normal");
-    doc.setFontSize(9);
-    doc.setTextColor(70,70,70);
-    doc.text("Prepared by All Electric Sales (AES) • 420 W North Ave, Addison, IL 60101", 12, pageH-8);
-    doc.text(`Page ${pageNum} of ${pageCount}`, pageW-12, pageH-8, {align:"right"});
-  }
-
-  function sanitizeFileName(name){
-    return (name || "Rebate Optimizer")
-      .replace(/[^a-z0-9]+/gi," ")
-      .replace(/\s+/g," ")
-      .trim();
-  }
-
-  async function generatePdf(){
-  if(!LAST || !LAST.best){
-    showStatus("Click Calculate first.", true);
-    return;
-  }
-  if(!window.jspdf){
-    showStatus("PDF library not loaded. Refresh and try again.", true);
-    return;
-  }
-  if(!window.Chart){
-    showStatus("Chart library not loaded. Refresh and try again.", true);
-    return;
-  }
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit:"mm", format:"letter" });
-
-  const dateStr = fmtDate(new Date());
-  const contact = LAST_CONTACT || {};
-  const jobName = (document.getElementById("jobName")?.value || "").trim() || "Project";
-
-  // --- Load logo as data URL ---
-  const logoImg = new Image();
-  logoImg.src = "aes-logo.png";
-
-  const logoDataUrl = await new Promise((resolve, reject)=>{
-    logoImg.onload = async ()=> resolve(await imgToDataUrl(logoImg));
-    logoImg.onerror = ()=> reject(new Error("Could not load aes-logo.png"));
-  }).catch(()=>{
-    showStatus("PDF error: could not load aes-logo.png. Ensure it exists next to index.html.", true);
-    return null;
-  });
-
-  if(!logoDataUrl) return;
-
-  const pageW = doc.internal.pageSize.getWidth();
-  const pageH = doc.internal.pageSize.getHeight();
-
-  // ============================================================
-  // PAGE 1 — TITLE PAGE (NO HEADER/FOOTER)
-  // ============================================================
-  // Big logo centered, then Job Name, then "Rebate Optimizer"
-  const logoW = 90;           // "pretty big"
-  const logoH = 34;           // good proportion; adjust if your logo is tall
-  const centerX = (pageW - logoW) / 2;
-  const centerY = (pageH / 2) - 40;
-
-  doc.setFillColor(255,255,255);
-  doc.rect(0,0,pageW,pageH,"F");
-
-  doc.addImage(logoDataUrl, "PNG", centerX, centerY, logoW, logoH);
-
-  doc.setFont("times","bold");
-  doc.setFontSize(18);
-  doc.text(jobName, pageW/2, centerY + logoH + 22, {align:"center"});
-
-  doc.setFont("times","normal");
-  doc.setFontSize(14);
-  doc.text("Rebate Optimizer", pageW/2, centerY + logoH + 34, {align:"center"});
-
-  // ============================================================
-  // PAGE 2 — COVER LETTER (WITH HEADER/FOOTER)
-  // ============================================================
-  doc.addPage();
-  drawPdfHeader(doc, logoDataUrl, dateStr);
-
-  doc.setFont("times","normal");
-  doc.setFontSize(11);
-  doc.setTextColor(0,0,0);
-
-  let y = 40;
-
-  doc.setFont("times","bold");
-  doc.setFontSize(12);
-  doc.text("Cover Letter", pageW/2, y, { align: "center" });
-  y += 10;
-
-  doc.setFont("times","normal");
-  doc.setFontSize(11);
-
-  const recipName = contact.name || "—";
-  const recipCompany = contact.company || "—";
-  const recipAddress = contact.address || "—";
-
-  const rightX = pageW - 12;
-  doc.text(recipName, rightX, y, { align: "right" }); y += 6;
-  doc.text(recipCompany, rightX, y, { align: "right" }); y += 6;
-  const addrLines = doc.splitTextToSize(recipAddress, 110);
-  addrLines.forEach(line => { doc.text(line, rightX, y, { align: "right" }); y += 6; });
-
-  y += 4;
-  doc.text(`Date: ${dateStr}`, 12, y); y += 10;
-
-  doc.setFont("times","bold");
-  doc.text("Re: ComEd Rebate Optimizer Summary", 12, y); y += 8;
-  doc.setFont("times","normal");
-
-  const best = LAST.best;
-  const runner = LAST.runnerUp;
-
-  const pay = best.paybackYears==null ? "—" : (Math.round(best.paybackYears*100)/100)+" years";
-
-  const bullets = [
-    `Recommended rebate path: ${best.label}`,
-    `Estimated rebate: ${money(best.rebateTotal)} | Net cost after rebates: ${money(best.netCost)}`,
-    `Watts reduced: ${Math.round(best.watts.wattsReducedTotal).toLocaleString()} W | Watts controlled: ${Math.round(best.watts.wattsControlledTotal).toLocaleString()} W`,
-    `Estimated energy savings: ${Math.round(best.energy.kwhSaved).toLocaleString()} kWh/year (~${money(best.energy.annual$)}/year)`,
-    `Simple payback: ${pay}`
-  ];
-
-  doc.text("Based on the information provided, the best option is:", 12, y); y += 7;
-
-  bullets.forEach(b=>{
-    doc.splitTextToSize("• " + b, 185).forEach(line=>{ doc.text(line, 14, y); y += 6; });
-  });
-
-  y += 14;
-  doc.text("If you would like AES to assist with product selection, paperwork, or execution, please reach out:", 12, y); y += 7;
-
-  doc.setFont("times","bold"); doc.text("All Electric Sales (AES)", 12, y); y += 6;
-  doc.setFont("times","normal");
-  doc.text("420 W North Ave, Addison, IL 60101", 12, y); y += 6;
-  doc.text("Phone: 847-830-8447", 12, y); y += 6;
-  doc.text("Email: jmitchell@allelectricsales.com", 12, y);
-
-  // Footer for cover letter page will be added at end loop
-
-  // ============================================================
-  // PAGE 3 — RESULTS SUMMARY (CARDS LIKE YOUR SCREENSHOT)
-  // ============================================================
-  doc.addPage();
-  drawPdfHeader(doc, logoDataUrl, dateStr);
-
-  // Helpers for card rendering
-  function roundRect(x,y,w,h,r, fillColor, strokeColor){
-    if(fillColor){
-      doc.setFillColor(...fillColor);
-      doc.roundedRect(x,y,w,h,r,r,"F");
-    }
-    if(strokeColor){
-      doc.setDrawColor(...strokeColor);
-      doc.roundedRect(x,y,w,h,r,r,"S");
-    }
-  }
-
-  function kpiTile(x,y,w,h,label,value){
-    doc.setDrawColor(217,222,227);
-    doc.setFillColor(250,250,250);
-    doc.roundedRect(x,y,w,h,3,3,"FD");
-    doc.setFont("times","normal");
-    doc.setTextColor(85,85,85);
-    doc.setFontSize(9);
-    doc.text(label, x+4, y+6);
-    doc.setFont("times","bold");
-    doc.setTextColor(17,17,17);
-    doc.setFontSize(11);
-    doc.text(String(value), x+4, y+14);
-  }
-
-  function drawResultCard(yTop, tagText, tagStyle, title, breakdown, inputs, kpis){
-    // card area
-    const x = 12;
-    const w = pageW - 24;
-    const h = 54; // enough for header + KPI row
-    const r = 4;
-
-    // Background by style
-    if(tagStyle === "best"){
-      // light green tint like screenshot
-      roundRect(x,yTop,w,h,r, [246,255,250], [187,247,208]);
-    }else{
-      // light yellow tint like screenshot
-      roundRect(x,yTop,w,h,r, [255,252,235], [253,230,138]);
-    }
-
-    // Tag pill
-    const pillW = 20;
-    const pillH = 7;
-    const pillX = x + 4;
-    const pillY = yTop + 4;
-
-    if(tagStyle === "best"){
-      roundRect(pillX,pillY,pillW,pillH,3, [236,253,245], [187,247,208]);
-      doc.setTextColor(22,101,52);
-    }else{
-      roundRect(pillX,pillY,pillW+8,pillH,3, [255,251,235], [253,230,138]);
-      doc.setTextColor(146,64,14);
-    }
-    doc.setFont("times","bold");
-    doc.setFontSize(9);
-    doc.text(tagText, pillX + 3, pillY + 5);
-
-    // Title
-    doc.setTextColor(17,17,17);
-    doc.setFont("times","bold");
-    doc.setFontSize(12);
-    doc.text(title, x + 4 + (tagStyle==="best"? (pillW+6):(pillW+14)), yTop + 10);
-
-    // Breakdown + inputs
-    doc.setFont("times","normal");
-    doc.setFontSize(9);
-    doc.setTextColor(85,85,85);
-    doc.text(`Breakdown: ${breakdown}`, x+4, yTop + 17);
-    doc.text(`Inputs used: ${inputs}`, x+4, yTop + 23);
-
-    // KPI tiles (5 across)
-    const tileGap = 4;
-    const tileW = (w - tileGap*4) / 5;
-    const tileH = 18;
-    const tileY = yTop + 30;
-
-    kpis.forEach((k, i)=>{
-      const tileX = x + (tileW + tileGap)*i;
-      kpiTile(tileX, tileY, tileW, tileH, k.label, k.value);
-    });
-
-    return yTop + h + 8;
-  }
-
-  // Build KPI sets matching your screenshot format
-  const bestKpis = [
-    { label:"Total rebate", value: money(best.rebateTotal) },
-    { label:"Net cost", value: money(best.netCost) },
-    { label:"Watts reduced", value: `${Math.round(best.watts.wattsReducedTotal).toLocaleString()} W` },
-    { label:"Watts controlled", value: `${Math.round(best.watts.wattsControlledTotal).toLocaleString()} W` },
-    { label:"Simple payback", value: best.paybackYears==null ? "—" : `${Math.round(best.paybackYears)} yrs` }
-  ];
-
-  const runnerKpis = runner ? [
-    { label:"Total rebate", value: money(runner.rebateTotal) },
-    { label:"Net cost", value: money(runner.netCost) },
-    { label:"Watts reduced", value: `${Math.round(runner.watts.wattsReducedTotal).toLocaleString()} W` },
-    { label:"Watts controlled", value: `${Math.round(runner.watts.wattsControlledTotal).toLocaleString()} W` },
-    { label:"Simple payback", value: runner.paybackYears==null ? "—" : `${Math.round(runner.paybackYears)} yrs` }
-  ] : null;
-
-  // Breakdown strings (like your UI)
-  const bestBreakdown = best.breakdown.map(b=>`${b.name} (${money(b.rebate)})`).join(" + ");
-  const bestInputs = `$/W reduced=${best.rateReduced} • $/W controlled=${best.rateControlled}`;
-
-  const runnerBreakdown = runner ? runner.breakdown.map(b=>`${b.name} (${money(b.rebate)})`).join(" + ") : "";
-  const runnerInputs = runner ? `$/W reduced=${runner.rateReduced} • $/W controlled=${runner.rateControlled}` : "";
-
-  let yCards = 34;
-  yCards = drawResultCard(yCards, "Best", "best", best.label, bestBreakdown, bestInputs, bestKpis);
-
-  if(runner){
-    yCards = drawResultCard(yCards, "Runner‑up", "runner", runner.label, runnerBreakdown, runnerInputs, runnerKpis);
-  }
-
-  // ============================================================
-  // PAGE 4 — BAR CHART (DOLLARS)
-  // X: Project Cost + rebate options best->worst
-  // ============================================================
-  doc.addPage();
-  drawPdfHeader(doc, logoDataUrl, dateStr);
-
-  const all = LAST.all || [];
-  // Already sorted best->worst by your optimizer
-  const labels = ["Project Cost", ...all.map((s,i)=> `${i+1}. ${s.label}`)];
-  const values = [best.projectCostTotal, ...all.map(s=> s.rebateTotal)];
-
-  // Create chart canvas
-  const canvas = document.createElement("canvas");
-  canvas.width = 1200;
-  canvas.height = 520;
-  const ctx = canvas.getContext("2d");
-
-  if(window._rebateBarChart){ window._rebateBarChart.destroy(); }
-
-  window._rebateBarChart = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [{
-        label: "Dollars ($)",
-        data: values,
-        backgroundColor: [
-          "rgba(10,92,125,.85)",              // project cost
-          ...all.map((_,i)=> i===0 ? "rgba(34,197,94,.80)" : (i===1 ? "rgba(251,191,36,.75)" : "rgba(148,163,184,.70)"))
-        ],
-        borderColor: [
-          "rgba(10,92,125,1)",
-          ...all.map((_,i)=> i===0 ? "rgba(34,197,94,1)" : (i===1 ? "rgba(251,191,36,1)" : "rgba(148,163,184,1)"))
-        ],
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: false,
-      animation: false,
-      plugins: {
-        legend: { display: false },
-        title: {
-          display: true,
-          text: "Project Cost vs Rebate Options (Best → Worst)",
-          color: "#111",
-          font: { size: 14, weight: "bold" }
-        },
-        tooltip: {
-          callbacks: {
-            label: (c)=> "$" + Number(c.raw || 0).toLocaleString()
-          }
-        }
-      },
-      scales: {
-        x: {
-          ticks: { color: "#111", font: { size: 9 } }
-        },
-        y: {
-          ticks: {
-            color: "#111",
-            callback: (v)=> "$" + Number(v).toLocaleString()
-          },
-          title: {
-            display: true,
-            text: "Dollars ($)",
-            color: "#111",
-            font: { size: 11 }
-          }
-        }
-      }
-    }
-  });
-
-  // Let the chart render
-  await new Promise(res => setTimeout(res, 50));
-
-  // Add chart image to PDF
-  const chartImg = window._rebateBarChart.toBase64Image();
-  doc.addImage(chartImg, "PNG", 12, 40, 192, 90);
-
-  // ============================================================
-  // Apply footer to pages 2+ only (skip title page)
-  // ============================================================
-  const pageCount = doc.internal.getNumberOfPages();
-  for(let i=2; i<=pageCount; i++){
-    doc.setPage(i);
-    drawPdfFooter(doc, i, pageCount);
-  }
-
-  // Save
-  doc.save(sanitizeFileName(jobName) + " - AES Rebate Optimizer.pdf");
-}
-
-  // ---------- Email ----------
-  function buildEmailBody(){
-    const best = LAST.best;
-    const runner = LAST.runnerUp;
-    const pay = best.paybackYears==null ? "—" : (Math.round(best.paybackYears*100)/100)+" years";
-
-    let body =
+ return tr;
+ }
+ function addRow(){
+ $("fixtureTable").querySelector("tbody").appendChild(rowTemplate());
+ updateQtyBadge();
+ refreshAllRowHints();
+ }
+ function getRows(){
+ const tbody = $("fixtureTable").querySelector("tbody");
+ return [...tbody.querySelectorAll("tr")].map(tr=>{
+ const tds = tr.querySelectorAll("td");
+ const nameInput = tds[0].querySelector("input");
+ const hintDiv = tds[0].querySelector(".cellHint");
+ const category = tds[1].querySelector("select").value;
+ const qty = clampNonNeg(tds[2].querySelector("input").value);
+ const wOld = clampNonNeg(tds[3].querySelector("input").value);
+ const wNew = clampNonNeg(tds[4].querySelector("input").value);
+ const hours = clampNonNeg(tds[5].querySelector("input").value);
+ const controls = tds[6].querySelector("select").value;
+ return {
+ tr,
+ name: (nameInput.value.trim() || "Line"),
+ hintDiv,
+ category, qty, wOld, wNew, hours, controls
+ };
+ }).filter(r=>r.qty>0);
+ }
+ function refreshRowHint(tr){
+ const tds = tr.querySelectorAll("td");
+ if(!tds.length) return;
+ const hint = tds[0].querySelector(".cellHint");
+ const category = tds[1].querySelector("select").value;
+ const qty = clampNonNeg(tds[2].querySelector("input").value);
+ const wOld = clampNonNeg(tds[3].querySelector("input").value);
+ const wNew = clampNonNeg(tds[4].querySelector("input").value);
+ const controls = tds[6].querySelector("select").value;
+ const wr = Math.max(wOld - wNew, 0) * qty;
+ const wc = (controls === "Y" ? Math.max(wNew,0) * qty : 0);
+ const perUnit = instantPerUnit(category, wNew);
+ const instantSub = perUnit * qty;
+ hint.textContent = `WR: ${Math.round(wr).toLocaleString()}W • WC: ${Math.round(wc).toLocaleString()}W • Instant: ${money(instantSub)}`;
+ }
+ function refreshAllRowHints(){
+ $("fixtureTable").querySelectorAll("tbody tr").forEach(tr => refreshRowHint(tr));
+ }
+ // LOCKED calc logic
+ function calcEnergy(rows, rateKwh){
+ let kwhSaved=0;
+ rows.forEach(r=>{
+ const dW = (r.wOld - r.wNew);
+ kwhSaved += (dW * r.qty * r.hours)/1000;
+ });
+ return { kwhSaved, annual$: kwhSaved * rateKwh };
+ }
+ function calcWatts(rows){
+ let wattsReducedTotal = 0;
+ let wattsControlledTotal = 0;
+ rows.forEach(r=>{
+ wattsReducedTotal += Math.max(r.wOld - r.wNew, 0) * r.qty;
+ if(r.controls==="Y"){
+ wattsControlledTotal += Math.max(r.wNew, 0) * r.qty;
+ }
+ });
+ return { wattsReducedTotal, wattsControlledTotal };
+ }
+ function instantRebate(rows){
+ let rebate = 0;
+ rows.forEach(r=>{
+ const per = instantPerUnit(r.category, r.wNew);
+ rebate += per * r.qty;
+ });
+ return rebate;
+ }
+ function staSboRebate(rows, rateReduced, rateControlled){
+ const { wattsReducedTotal, wattsControlledTotal } = calcWatts(rows);
+ return (wattsReducedTotal * rateReduced) + (wattsControlledTotal * rateControlled);
+ }
+ function controlledOnlyRebate(rows, rateControlled){
+ const { wattsControlledTotal } = calcWatts(rows);
+ return wattsControlledTotal * rateControlled;
+ }
+ function run(){
+ clearStatus();
+ $("recommendLine").style.display = "none";
+ $("recommendLine").textContent = "";
+ const rows = getRows();
+ if(rows.length===0){
+ $("results").innerHTML = "";
+ $("calcSummary").textContent = "";
+ showStatus("Add at least one fixture row.", true);
+ updateQtyBadge();
+ return;
+ }
+ const rateKwh = clampNonNeg($("rateKwh").value);
+ const projectCostTotal = clampNonNeg($("projectCost").value) + clampNonNeg($("laborCost").value);
+ const rateReduced = clampNonNeg($("rateWattReduced").value);
+ const rateControlled = clampNonNeg($("rateWattControlled").value);
+ const offeringType = $("offeringType").value;
+ const energy = calcEnergy(rows, rateKwh);
+ const watts = calcWatts(rows);
+ const rebateInstant = instantRebate(rows);
+ const rebateStaSbo = staSboRebate(rows, rateReduced, rateControlled);
+ const rebateInstantPlusControlled = rebateInstant + controlledOnlyRebate(rows, rateControlled);
+ const scenarios = [
+ { label:"Instant Only", rebateTotal: rebateInstant, breakdown:[{name:"Instant", rebate: rebateInstant}] },
+ {
+ label: (offeringType==="SMALL_BIZ"
+ ? "Small Business Only (Watts Reduced + Watts Controlled)"
+ : "Standard Only (Watts Reduced + Watts Controlled)"),
+ rebateTotal: rebateStaSbo,
+ breakdown:[{name:(offeringType==="SMALL_BIZ"?"Small Business":"Standard"), rebate: rebateStaSbo}]
+ },
+ {
+ label:"Instant + Watts Controlled",
+ rebateTotal: rebateInstantPlusControlled,
+ breakdown:[
+ {name:"Instant", rebate: rebateInstant},
+ {name:"Watts Controlled", rebate: controlledOnlyRebate(rows, rateControlled)}
+ ]
+ }
+ ].map(s=>{
+ const netCost = Math.max(projectCostTotal - s.rebateTotal, 0);
+ const paybackYears = energy.annual$>0 ? (netCost / energy.annual$) : null;
+ return { ...s, netCost, paybackYears, energy, watts, projectCostTotal, rateReduced, rateControlled, offeringType };
+ }).sort((a,b)=>{
+ if(a.netCost !== b.netCost) return a.netCost - b.netCost;
+ if(b.rebateTotal !== a.rebateTotal) return b.rebateTotal - a.rebateTotal;
+ const ap = (a.paybackYears==null)?1e9:a.paybackYears;
+ const bp = (b.paybackYears==null)?1e9:b.paybackYears;
+ return ap - bp;
+ });
+ LAST = { best: scenarios[0], runnerUp: scenarios[1] || null, all: scenarios, rows };
+ $("calcSummary").textContent =
+ `Project cost: ${money(projectCostTotal)} • Watts reduced: ${Math.round(watts.wattsReducedTotal).toLocaleString()} W • ` +
+ `Watts controlled: ${Math.round(watts.wattsControlledTotal).toLocaleString()} W • ` +
+ `kWh saved: ${Math.round(energy.kwhSaved).toLocaleString()} • $/yr saved: ${money(energy.annual$)}`;
+ // Polished recommendation line
+ if(LAST.runnerUp){
+ const delta = LAST.best.rebateTotal - LAST.runnerUp.rebateTotal;
+ const msg = `Recommended: ${LAST.best.label} — it provides ${money(Math.abs(delta))} ${delta>=0 ? "MORE" : "LESS"} rebate than the runner‑up.`;
+ $("recommendLine").textContent = msg;
+ $("recommendLine").style.display = "block";
+ } else {
+ $("recommendLine").textContent = `Recommended: ${LAST.best.label}`;
+ $("recommendLine").style.display = "block";
+ }
+ renderTopTwo();
+ showStatus("Calculation complete.");
+ updateQtyBadge();
+ }
+ function renderScenarioCard(s, tagText, tagClass, cardClass){
+ const pay = s.paybackYears==null ? "—" : (Math.round(s.paybackYears*100)/100)+" yrs";
+ const div = document.createElement("div");
+ div.className = "resultCard " + (cardClass || "");
+ div.innerHTML = `
+ <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+ <div>
+ <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;">
+ <span class="tag ${tagClass}">${tagText}</span>
+ <div style="font-weight:800;font-size:14px;">${s.label}</div>
+ </div>
+ <div class="small" style="margin-top:6px;">
+ Breakdown: ${s.breakdown.map(b=>`${b.name} (${money(b.rebate)})`).join(" • ")}
+ </div>
+ <div class="small" style="margin-top:2px;">
+ Inputs used: $/W reduced=${s.rateReduced} • $/W controlled=${s.rateControlled}
+ </div>
+ </div>
+ </div>
+ <div class="kpiGrid">
+ <div class="kpi"><div class="l">Total rebate</div><div class="v">${money(s.rebateTotal)}</div></div>
+ <div class="kpi"><div class="l">Net cost</div><div class="v">${money(s.netCost)}</div></div>
+ <div class="kpi"><div class="l">Watts reduced</div><div class="v">${Math.round(s.watts.wattsReducedTotal).toLocaleString()} W</div></div>
+ <div class="kpi"><div class="l">Watts controlled</div><div class="v">${Math.round(s.watts.wattsControlledTotal).toLocaleString()} W</div></div>
+ <div class="kpi"><div class="l">Simple payback</div><div class="v">${pay}</div></div>
+ </div>
+ `;
+ return div;
+ }
+ function renderTopTwo(){
+ const box = $("results");
+ box.innerHTML = "";
+ if(!LAST || !LAST.best) return;
+ box.appendChild(renderScenarioCard(LAST.best, "Best", "best", "best"));
+ if(LAST.runnerUp){
+ box.appendChild(renderScenarioCard(LAST.runnerUp, "Runner‑up", "runner", "runner"));
+ }
+ }
+ // ---------- PDF ----------
+ function fmtDate(d){
+ const mm = String(d.getMonth()+1).padStart(2,"0");
+ const dd = String(d.getDate()).padStart(2,"0");
+ const yyyy = d.getFullYear();
+ return `${mm}/${dd}/${yyyy}`;
+ }
+ async function imgToDataUrl(img){
+ const c = document.createElement("canvas");
+ c.width = img.naturalWidth || img.width;
+ c.height = img.naturalHeight || img.height;
+ const ctx = c.getContext("2d");
+ ctx.drawImage(img, 0, 0);
+ return c.toDataURL("image/png");
+ }
+ function drawPdfHeader(doc, logoDataUrl, dateStr){
+ const pageW = doc.internal.pageSize.getWidth();
+ doc.setFillColor(255,255,255);
+ doc.rect(0, 0, pageW, 24, "F");
+ doc.addImage(logoDataUrl, "PNG", 12, 7, 26, 10);
+ doc.setTextColor(0,0,0);
+ doc.setFont("times","bold");
+ doc.setFontSize(14);
+ doc.text("AES Rebate Optimizer Report", pageW/2, 15, {align:"center"});
+ doc.setFont("times","normal");
+ doc.setFontSize(10);
+ doc.text(dateStr, pageW-12, 16, {align:"right"});
+ doc.setDrawColor(220);
+ doc.line(12, 24, pageW-12, 24);
+ }
+ function drawPdfFooter(doc, pageNum, pageCount){
+ const pageW = doc.internal.pageSize.getWidth();
+ const pageH = doc.internal.pageSize.getHeight();
+ doc.setDrawColor(220);
+ doc.line(12, pageH-14, pageW-12, pageH-14);
+ doc.setFont("times","normal");
+ doc.setFontSize(9);
+ doc.setTextColor(70,70,70);
+ doc.text("Prepared by All Electric Sales (AES) • 420 W North Ave, Addison, IL 60101", 12, pageH-8);
+ doc.text(`Page ${pageNum} of ${pageCount}`, pageW-12, pageH-8, {align:"right"});
+ }
+ function sanitizeFileName(name){
+ return (name || "Rebate Optimizer")
+ .replace(/[^a-z0-9]+/gi," ")
+ .replace(/\\s+/g," ")
+ .trim();
+ }
+ async function generatePdf(){
+ if(!LAST || !LAST.best){
+ showStatus("Click Calculate first.", true);
+ return;
+ }
+ if(!window.jspdf){
+ showStatus("PDF library not loaded. Refresh and try again.", true);
+ return;
+ }
+ if(!window.Chart){
+ showStatus("Chart library not loaded. Refresh and try again.", true);
+ return;
+ }
+ const { jsPDF } = window.jspdf;
+ const doc = new jsPDF({ unit:"mm", format:"letter" });
+ const dateStr = fmtDate(new Date());
+ const contact = LAST_CONTACT || {};
+ const jobName = (document.getElementById("jobName")?.value || "").trim() || "Project";
+
+ const logoImg = new Image();
+ logoImg.src = "aes-logo.png";
+ const logoDataUrl = await new Promise((resolve, reject)=>{
+ logoImg.onload = async ()=> resolve(await imgToDataUrl(logoImg));
+ logoImg.onerror = ()=> reject(new Error("Could not load aes-logo.png"));
+ }).catch(()=>{
+ showStatus("PDF error: could not load aes-logo.png. Ensure it exists next to index.html.", true);
+ return null;
+ });
+ if(!logoDataUrl) return;
+
+ const pageW = doc.internal.pageSize.getWidth();
+ const pageH = doc.internal.pageSize.getHeight();
+
+ // PAGE 1 — TITLE PAGE (NO HEADER/FOOTER)
+ const logoW = 90, logoH = 34;
+ const centerX = (pageW - logoW) / 2;
+ const centerY = (pageH / 2) - 40;
+
+ doc.setFillColor(255,255,255);
+ doc.rect(0,0,pageW,pageH,"F");
+ doc.addImage(logoDataUrl, "PNG", centerX, centerY, logoW, logoH);
+
+ doc.setFont("times","bold"); doc.setFontSize(18);
+ doc.text(jobName, pageW/2, centerY + logoH + 22, {align:"center"});
+ doc.setFont("times","normal"); doc.setFontSize(14);
+ doc.text("Rebate Optimizer", pageW/2, centerY + logoH + 34, {align:"center"});
+
+ // PAGE 2 — COVER LETTER (WITH HEADER/FOOTER)
+ doc.addPage();
+ drawPdfHeader(doc, logoDataUrl, dateStr);
+
+ doc.setFont("times","normal");
+ doc.setFontSize(11);
+ doc.setTextColor(0,0,0);
+
+ let y = 40;
+ doc.setFont("times","bold"); doc.setFontSize(12);
+ doc.text("Cover Letter", pageW/2, y, { align: "center" });
+ y += 10;
+
+ doc.setFont("times","normal"); doc.setFontSize(11);
+
+ const recipName = contact.name || "—";
+ const recipCompany = contact.company || "—";
+ const recipAddress = contact.address || "—";
+
+ const rightX = pageW - 12;
+ doc.text(recipName, rightX, y, { align: "right" }); y += 6;
+ doc.text(recipCompany, rightX, y, { align: "right" }); y += 6;
+ const addrLines = doc.splitTextToSize(recipAddress, 110);
+ addrLines.forEach(line => { doc.text(line, rightX, y, { align: "right" }); y += 6; });
+
+ y += 4;
+ doc.text(`Date: ${dateStr}`, 12, y); y += 10;
+
+ doc.setFont("times","bold");
+ doc.text("Re: ComEd Rebate Optimizer Summary", 12, y); y += 8;
+ doc.setFont("times","normal");
+
+ const best = LAST.best;
+ const runner = LAST.runnerUp;
+ const pay = best.paybackYears==null ? "—" : (Math.round(best.paybackYears*100)/100)+" years";
+
+ const bullets = [
+ `Recommended rebate path: ${best.label}`,
+ `Estimated rebate: ${money(best.rebateTotal)} | Net cost after rebates: ${money(best.netCost)}`,
+ `Watts reduced: ${Math.round(best.watts.wattsReducedTotal).toLocaleString()} W | Watts controlled: ${Math.round(best.watts.wattsControlledTotal).toLocaleString()} W`,
+ `Estimated energy savings: ${Math.round(best.energy.kwhSaved).toLocaleString()} kWh/year (~${money(best.energy.annual$)}/year)`,
+ `Simple payback: ${pay}`
+ ];
+
+ doc.text("Based on the information provided, the best option is:", 12, y); y += 7;
+ bullets.forEach(b=>{
+ doc.splitTextToSize("• " + b, 185).forEach(line=>{ doc.text(line, 14, y); y += 6; });
+ });
+
+ // extra spacing before reach out
+ y += 14;
+ doc.text("If you would like AES to assist with product selection, paperwork, or execution, please reach out:", 12, y); y += 7;
+ doc.setFont("times","bold"); doc.text("All Electric Sales (AES)", 12, y); y += 6;
+ doc.setFont("times","normal");
+ doc.text("420 W North Ave, Addison, IL 60101", 12, y); y += 6;
+ doc.text("Phone: 847-830-8447", 12, y); y += 6;
+ doc.text("Email: jmitchell@allelectricsales.com", 12, y);
+
+ // PAGE 3 — RESULTS SUMMARY (cards)
+ doc.addPage();
+ drawPdfHeader(doc, logoDataUrl, dateStr);
+
+ function roundRect(x,y,w,h,r, fillColor, strokeColor){
+ if(fillColor){ doc.setFillColor(...fillColor); doc.roundedRect(x,y,w,h,r,r,"F"); }
+ if(strokeColor){ doc.setDrawColor(...strokeColor); doc.roundedRect(x,y,w,h,r,r,"S"); }
+ }
+ function kpiTile(x,y,w,h,label,value){
+ doc.setDrawColor(217,222,227);
+ doc.setFillColor(250,250,250);
+ doc.roundedRect(x,y,w,h,3,3,"FD");
+ doc.setFont("times","normal");
+ doc.setTextColor(85,85,85);
+ doc.setFontSize(9);
+ doc.text(label, x+4, y+6);
+ doc.setFont("times","bold");
+ doc.setTextColor(17,17,17);
+ doc.setFontSize(11);
+ doc.text(String(value), x+4, y+14);
+ }
+ function drawResultCard(yTop, tagText, tagStyle, title, breakdown, inputs, kpis){
+ const x = 12, w = pageW - 24, h = 54, r = 4;
+ if(tagStyle === "best") roundRect(x,yTop,w,h,r,[246,255,250],[187,247,208]);
+ else roundRect(x,yTop,w,h,r,[255,252,235],[253,230,138]);
+
+ const pillW = 20, pillH = 7, pillX = x + 4, pillY = yTop + 4;
+ if(tagStyle === "best"){ roundRect(pillX,pillY,pillW,pillH,3,[236,253,245],[187,247,208]); doc.setTextColor(22,101,52); }
+ else { roundRect(pillX,pillY,pillW+8,pillH,3,[255,251,235],[253,230,138]); doc.setTextColor(146,64,14); }
+
+ doc.setFont("times","bold"); doc.setFontSize(9);
+ doc.text(tagText, pillX + 3, pillY + 5);
+
+ doc.setTextColor(17,17,17);
+ doc.setFont("times","bold"); doc.setFontSize(12);
+ doc.text(title, x + 4 + (tagStyle==="best"? (pillW+6):(pillW+14)), yTop + 10);
+
+ doc.setFont("times","normal"); doc.setFontSize(9); doc.setTextColor(85,85,85);
+ doc.text(`Breakdown: ${breakdown}`, x+4, yTop + 17);
+ doc.text(`Inputs used: ${inputs}`, x+4, yTop + 23);
+
+ const tileGap = 4;
+ const tileW = (w - tileGap*4) / 5;
+ const tileH = 18;
+ const tileY = yTop + 30;
+ kpis.forEach((k, i)=>{
+ const tileX = x + (tileW + tileGap)*i;
+ kpiTile(tileX, tileY, tileW, tileH, k.label, k.value);
+ });
+ return yTop + h + 8;
+ }
+
+ const bestKpis = [
+ { label:"Total rebate", value: money(best.rebateTotal) },
+ { label:"Net cost", value: money(best.netCost) },
+ { label:"Watts reduced", value: `${Math.round(best.watts.wattsReducedTotal).toLocaleString()} W` },
+ { label:"Watts controlled", value: `${Math.round(best.watts.wattsControlledTotal).toLocaleString()} W` },
+ { label:"Simple payback", value: best.paybackYears==null ? "—" : `${Math.round(best.paybackYears)} yrs` }
+ ];
+ const runnerKpis = runner ? [
+ { label:"Total rebate", value: money(runner.rebateTotal) },
+ { label:"Net cost", value: money(runner.netCost) },
+ { label:"Watts reduced", value: `${Math.round(runner.watts.wattsReducedTotal).toLocaleString()} W` },
+ { label:"Watts controlled", value: `${Math.round(runner.watts.wattsControlledTotal).toLocaleString()} W` },
+ { label:"Simple payback", value: runner.paybackYears==null ? "—" : `${Math.round(runner.paybackYears)} yrs` }
+ ] : null;
+
+ const bestBreakdown = best.breakdown.map(b=>`${b.name} (${money(b.rebate)})`).join(" + ");
+ const bestInputs = `$/W reduced=${best.rateReduced} • $/W controlled=${best.rateControlled}`;
+ const runnerBreakdown = runner ? runner.breakdown.map(b=>`${b.name} (${money(b.rebate)})`).join(" + ") : "";
+ const runnerInputs = runner ? `$/W reduced=${runner.rateReduced} • $/W controlled=${runner.rateControlled}` : "";
+
+ let yCards = 34;
+ yCards = drawResultCard(yCards, "Best", "best", best.label, bestBreakdown, bestInputs, bestKpis);
+ if(runner) yCards = drawResultCard(yCards, "Runner‑up", "runner", runner.label, runnerBreakdown, runnerInputs, runnerKpis);
+
+ // PAGE 4 — BAR CHART
+ doc.addPage();
+ drawPdfHeader(doc, logoDataUrl, dateStr);
+
+ const all = LAST.all || [];
+ const labels = ["Project Cost", ...all.map((s,i)=> `${i+1}. ${s.label}`)];
+ const values = [best.projectCostTotal, ...all.map(s=> s.rebateTotal)];
+
+ const canvas = document.createElement("canvas");
+ canvas.width = 1200; canvas.height = 520;
+ const ctx = canvas.getContext("2d");
+
+ if(window._rebateBarChart){ window._rebateBarChart.destroy(); }
+ window._rebateBarChart = new Chart(ctx, {
+ type: "bar",
+ data: { labels, datasets: [{
+ label: "Dollars ($)",
+ data: values,
+ backgroundColor: [
+ "rgba(10,92,125,.85)",
+ ...all.map((_,i)=> i===0 ? "rgba(34,197,94,.80)" : (i===1 ? "rgba(251,191,36,.75)" : "rgba(148,163,184,.70)"))
+ ],
+ borderColor: [
+ "rgba(10,92,125,1)",
+ ...all.map((_,i)=> i===0 ? "rgba(34,197,94,1)" : (i===1 ? "rgba(251,191,36,1)" : "rgba(148,163,184,1)"))
+ ],
+ borderWidth: 1
+ } ]},
+ options: {
+ responsive:false, animation:false,
+ plugins:{
+ legend:{ display:false },
+ title:{ display:true, text:"Project Cost vs Rebate Options (Best → Worst)", color:"#111", font:{ size:14, weight:"bold" } },
+ tooltip:{ callbacks:{ label:(c)=> "$" + Number(c.raw||0).toLocaleString() } }
+ },
+ scales:{
+ x:{ ticks:{ color:"#111", font:{ size:9 } } },
+ y:{ ticks:{ color:"#111", callback:(v)=> "$" + Number(v).toLocaleString() },
+ title:{ display:true, text:"Dollars ($)", color:"#111", font:{ size:11 } } }
+ }
+ }
+ });
+
+ await new Promise(res=>setTimeout(res, 50));
+ doc.addImage(window._rebateBarChart.toBase64Image(), "PNG", 12, 40, 192, 90);
+
+ // Apply footer to pages 2+ only
+ const pageCount = doc.internal.getNumberOfPages();
+ for(let i=2; i<=pageCount; i++){
+ doc.setPage(i);
+ drawPdfFooter(doc, i, pageCount);
+ }
+
+ doc.save(sanitizeFileName(jobName) + " - AES Rebate Optimizer.pdf");
+ }
+
+ // ---------- Email ----------
+ function buildEmailBody(){
+ const best = LAST.best;
+ const runner = LAST.runnerUp;
+ const pay = best.paybackYears==null ? "—" : (Math.round(best.paybackYears*100)/100)+" years";
+ let body =
 `AES Rebate Optimizer Results
 
 Best option:
@@ -1401,10 +1214,9 @@ Best option:
 - Inputs: $/W reduced=${best.rateReduced}, $/W controlled=${best.rateControlled}
 
 `;
-
-    if(runner){
-      const pay2 = runner.paybackYears==null ? "—" : (Math.round(runner.paybackYears*100)/100)+" years";
-      body +=
+ if(runner){
+ const pay2 = runner.paybackYears==null ? "—" : (Math.round(runner.paybackYears*100)/100)+" years";
+ body +=
 `Runner-up:
 - ${runner.label}
 - Rebate: ${money(runner.rebateTotal)}
@@ -1412,128 +1224,131 @@ Best option:
 - Simple payback: ${pay2}
 
 `;
-    }
+ }
+ body += `PDF: Click "Print / Save PDF" on the calculator to generate the report.\n`;
+ return body;
+ }
+ function openEmailModal(){
+ if(!LAST || !LAST.best){
+ showStatus("Click Calculate first.", true);
+ return;
+ }
+ $("mName").value = LAST_CONTACT.name || "";
+ $("mCompany").value = LAST_CONTACT.company || "";
+ $("mAddress").value = LAST_CONTACT.address || "";
+ $("mEmail").value = LAST_CONTACT.email || "";
+ $("modalOverlay").style.display = "flex";
+ $("modalOverlay").setAttribute("aria-hidden","false");
+ }
+ function closeEmailModal(){
+ $("modalOverlay").style.display = "none";
+ $("modalOverlay").setAttribute("aria-hidden","true");
+ }
+ function createEmailDraft(){
+ const name = ($("mName").value || "").trim();
+ const company = ($("mCompany").value || "").trim();
+ const address = ($("mAddress").value || "").trim();
+ const email = ($("mEmail").value || "").trim();
+ if(!email){
+ showStatus("Please enter your email address in the popup.", true);
+ return;
+ }
+ LAST_CONTACT = { name, company, address, email };
+ const subject = encodeURIComponent("AES Rebate Optimizer Results");
+ const body = encodeURIComponent(buildEmailBody());
+ const bcc = encodeURIComponent(BCC_EMAIL);
+ closeEmailModal();
+ window.location.href =
+ "mailto:" + encodeURIComponent(email) +
+ "?bcc=" + bcc +
+ "&subject=" + subject +
+ "&body=" + body;
+ }
 
-    body += `PDF: Click "Print / Save PDF" on the calculator to generate the report.\n`;
-    return body;
-  }
+ // ---------- Wire up ----------
+ document.addEventListener("DOMContentLoaded", ()=>{
+ // Start with 2 rows
+ addRow();
+ addRow();
+ refreshAllRowHints();
+ updateQtyBadge();
+ showStatus("Ready.");
 
-  function openEmailModal(){
-    if(!LAST || !LAST.best){
-      showStatus("Click Calculate first.", true);
-      return;
-    }
-    $("mName").value = LAST_CONTACT.name || "";
-    $("mCompany").value = LAST_CONTACT.company || "";
-    $("mAddress").value = LAST_CONTACT.address || "";
-    $("mEmail").value = LAST_CONTACT.email || "";
-    $("modalOverlay").style.display = "flex";
-    $("modalOverlay").setAttribute("aria-hidden","false");
-  }
-
-  function closeEmailModal(){
-    $("modalOverlay").style.display = "none";
-    $("modalOverlay").setAttribute("aria-hidden","true");
-  }
-
-  function createEmailDraft(){
-    const name = ($("mName").value || "").trim();
-    const company = ($("mCompany").value || "").trim();
-    const address = ($("mAddress").value || "").trim();
-    const email = ($("mEmail").value || "").trim();
-
-    if(!email){
-      showStatus("Please enter your email address in the popup.", true);
-      return;
-    }
-
-    LAST_CONTACT = { name, company, address, email };
-
-    const subject = encodeURIComponent("AES Rebate Optimizer Results");
-    const body = encodeURIComponent(buildEmailBody());
-    const bcc = encodeURIComponent(BCC_EMAIL);
-
-    closeEmailModal();
-
-    window.location.href =
-      "mailto:" + encodeURIComponent(email) +
-      "?bcc=" + bcc +
-      "&subject=" + subject +
-      "&body=" + body;
-  }
-
-  // ---------- Wire up ----------
-  document.addEventListener("DOMContentLoaded", ()=>{
-    // Start with 2 rows (polish: more useful than 1)
-    addRow();
-    addRow();
-    refreshAllRowHints();
-    updateQtyBadge();
-    showStatus("Ready.");
-
-    // Money inputs: format on blur as currency
+    // Money inputs: format on blur/Enter as currency
     bindMoneyInput("rateWattReduced", 0);
     bindMoneyInput("rateWattControlled", 0);
-    bindMoneyInput("rateKwh", 0.14);
+    bindMoneyInput("rateKwh", 0.1636);
     bindMoneyInput("projectCost", 0);
     bindMoneyInput("laborCost", 0);
 
+ $("addRow").addEventListener("click", ()=>{ addRow(); refreshAllRowHints(); });
 
-    $("addRow").addEventListener("click", ()=>{ addRow(); refreshAllRowHints(); });
-    $("clearRows").addEventListener("click", ()=>{
-      $("fixtureTable").querySelector("tbody").innerHTML = "";
-      $("results").innerHTML = "";
-      $("calcSummary").textContent = "";
-      $("recommendLine").style.display = "none";
-      showStatus("Rows cleared.", true);
-      addRow();
-      updateQtyBadge();
-      refreshAllRowHints();
-    });
-
-    $("defaultHours").addEventListener("change", ()=>{
-      const tbody = $("fixtureTable").querySelector("tbody");
-      [...tbody.querySelectorAll("tr")].forEach(tr=>{
-        const hoursInput = tr.querySelectorAll("td")[5].querySelector("input");
-        if(clampNonNeg(hoursInput.value) === 0) hoursInput.value = clampNonNeg($("defaultHours").value);
-        refreshRowHint(tr);
+    // Ensure Add Fixture Row button works
+    const addBtn = $("addRow");
+    if(addBtn){
+      addBtn.addEventListener("click", (e)=>{
+        e.preventDefault();
+        try{
+          addRow();
+          refreshAllRowHints();
+          updateQtyBadge();
+        }catch(err){
+          console.error("Add row failed:", err);
+          showStatus("Add row failed — check console.", true);
+        }
       });
-    });
+    }
 
-    $("calculate").addEventListener("click", run);
+ $("clearRows").addEventListener("click", ()=>{
+ $("fixtureTable").querySelector("tbody").innerHTML = "";
+ $("results").innerHTML = "";
+ $("calcSummary").textContent = "";
+ $("recommendLine").style.display = "none";
+ showStatus("Rows cleared.", true);
+ addRow();
+ updateQtyBadge();
+ refreshAllRowHints();
+ });
 
-    $("btnPdf").addEventListener("click", async ()=>{
-      if(!LAST || !LAST.best){
-        showStatus("Click Calculate first.", true);
-        return;
-      }
-      // If no contact entered yet, prompt once (but PDF still works with dashes)
-      if(!LAST_CONTACT.name && !LAST_CONTACT.company && !LAST_CONTACT.address){
-        openEmailModal();
-        showStatus("Enter your info (for cover letter), then Create Email Draft or Cancel. PDF will use the entered info.", true);
-        return;
-      }
-      await generatePdf();
-    });
+ $("defaultHours").addEventListener("change", ()=>{
+ const tbody = $("fixtureTable").querySelector("tbody");
+ [...tbody.querySelectorAll("tr")].forEach(tr=>{
+ const hoursInput = tr.querySelectorAll("td")[5].querySelector("input");
+ if(clampNonNeg(hoursInput.value) === 0) hoursInput.value = clampNonNeg($("defaultHours").value);
+ refreshRowHint(tr);
+ });
+ });
 
-    $("btnEmail").addEventListener("click", openEmailModal);
+ $("calculate").addEventListener("click", run);
 
-    $("modalClose").addEventListener("click", closeEmailModal);
-    $("modalCancel").addEventListener("click", closeEmailModal);
-    $("modalSend").addEventListener("click", createEmailDraft);
+ $("btnPdf").addEventListener("click", async ()=>{
+ if(!LAST || !LAST.best){
+ showStatus("Click Calculate first.", true);
+ return;
+ }
+ if(!LAST_CONTACT.name && !LAST_CONTACT.company && !LAST_CONTACT.address){
+ openEmailModal();
+ showStatus("Enter your info (for cover letter), then Create Email Draft or Cancel. PDF will use the entered info.", true);
+ return;
+ }
+ await generatePdf();
+ });
 
-    $("modalOverlay").addEventListener("click", (e)=>{
-      if(e.target === $("modalOverlay")) closeEmailModal();
-    });
+ $("btnEmail").addEventListener("click", openEmailModal);
+ $("modalClose").addEventListener("click", closeEmailModal);
+ $("modalCancel").addEventListener("click", closeEmailModal);
+ $("modalSend").addEventListener("click", createEmailDraft);
+ $("modalOverlay").addEventListener("click", (e)=>{
+ if(e.target === $("modalOverlay")) closeEmailModal();
+ });
 
-    // Global polish: auto-select on focus for all inputs on page
-    document.body.addEventListener("focusin", (e)=>{
-      if(e.target && e.target.tagName === "INPUT"){
-        try{ e.target.select(); }catch{}
-      }
-    });
-  });
-
+ // Global polish: auto-select on focus for all inputs
+ document.body.addEventListener("focusin", (e)=>{
+ if(e.target && e.target.tagName === "INPUT"){
+ try{ e.target.select(); }catch{}
+ }
+ });
+ });
 })();
 </script>
 </body>
