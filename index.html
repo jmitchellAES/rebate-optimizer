@@ -451,7 +451,7 @@
  <tr>
  <th style="min-width:240px">Line name</th>
  <th style="min-width:300px">Instant Category</th>
- <th style="min-width:90px">Qty</th>
+ <th style="min-width:90px">Quantity</th>
  <th style="min-width:120px">Existing Watt</th>
  <th style="min-width:120px">Proposed Watt</th>
  <th style="min-width:120px">Hours/yr</th>
@@ -673,8 +673,8 @@
  <td><input type="number" value="${$("defaultHours").value||3000}" min="0" step="50" inputmode="numeric"></td>
  <td>
  <select>
- <option value="N">N</option>
- <option value="Y">Y</option>
+ <option value="No">N</option>
+ <option value="Yes">Y</option>
  </select>
  </td>
  <td><button class="danger" type="button">X</button></td>
@@ -752,7 +752,7 @@
  const wNew = clampNonNeg(tds[4].querySelector("input").value);
  const controls = tds[6].querySelector("select").value;
  const wr = Math.max(wOld - wNew, 0) * qty;
- const wc = (controls === "Y" ? Math.max(wNew,0) * qty : 0);
+ const wc = (controls === "Yes" ? Math.max(wNew,0) * qty : 0);
  const perUnit = instantPerUnit(category, wNew);
  const instantSub = perUnit * qty;
  hint.textContent = `WR: ${Math.round(wr).toLocaleString()}W • WC: ${Math.round(wc).toLocaleString()}W • Instant: ${money(instantSub)}`;
@@ -774,7 +774,7 @@
  let wattsControlledTotal = 0;
  rows.forEach(r=>{
  wattsReducedTotal += Math.max(r.wOld - r.wNew, 0) * r.qty;
- if(r.controls==="Y"){
+ if(r.controls==="Yes"){
  wattsControlledTotal += Math.max(r.wNew, 0) * r.qty;
  }
  });
