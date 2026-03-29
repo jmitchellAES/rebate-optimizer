@@ -374,6 +374,7 @@
 
   <!-- jsPDF (same library approach as your ROI calculator) -->
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 
 <body>
@@ -406,7 +407,10 @@
               <option value="SMALL_BIZ">Small Business</option>
             </select>
           </div>
-
+<div class="span4">
+  <label>Job Name</label>
+  <input id="jobName" type="text" placeholder="e.g., ABC Warehouse Retrofit">
+</div>
           <div>
             <label>$ per Watt Reduced (STA/SBO)</label>
             <input id="rateWattReduced" type="number" value="0" min="0" step="0.01" inputmode="decimal">
@@ -846,7 +850,7 @@
       return ap - bp;
     });
 
-    LAST = { best: scenarios[0], runnerUp: scenarios[1] || null, rows };
+   LAST = { best: scenarios[0], runnerUp: scenarios[1] || null, all: scenarios, rows };
 
     $("calcSummary").textContent =
       `Project cost: ${money(projectCostTotal)} • Watts reduced: ${Math.round(watts.wattsReducedTotal).toLocaleString()} W • ` +
@@ -965,144 +969,347 @@
   }
 
   async function generatePdf(){
-    if(!LAST || !LAST.best){
-      showStatus("Click Calculate first.", true);
-      return;
+  if(!LAST || !LAST.best){
+    showStatus("Click Calculate first.", true);
+    return;
+  }
+  if(!window.jspdf){
+    showStatus("PDF library not loaded. Refresh and try again.", true);
+    return;
+  }
+  if(!window.Chart){
+    showStatus("Chart library not loaded. Refresh and try again.", true);
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:"mm", format:"letter" });
+
+  const dateStr = fmtDate(new Date());
+  const contact = LAST_CONTACT || {};
+  const jobName = (document.getElementById("jobName")?.value || "").trim() || "Project";
+
+  // --- Load logo as data URL ---
+  const logoImg = new Image();
+  logoImg.src = "aes-logo.png";
+
+  const logoDataUrl = await new Promise((resolve, reject)=>{
+    logoImg.onload = async ()=> resolve(await imgToDataUrl(logoImg));
+    logoImg.onerror = ()=> reject(new Error("Could not load aes-logo.png"));
+  }).catch(()=>{
+    showStatus("PDF error: could not load aes-logo.png. Ensure it exists next to index.html.", true);
+    return null;
+  });
+
+  if(!logoDataUrl) return;
+
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+
+  // ============================================================
+  // PAGE 1 — TITLE PAGE (NO HEADER/FOOTER)
+  // ============================================================
+  // Big logo centered, then Job Name, then "Rebate Optimizer"
+  const logoW = 90;           // "pretty big"
+  const logoH = 34;           // good proportion; adjust if your logo is tall
+  const centerX = (pageW - logoW) / 2;
+  const centerY = (pageH / 2) - 40;
+
+  doc.setFillColor(255,255,255);
+  doc.rect(0,0,pageW,pageH,"F");
+
+  doc.addImage(logoDataUrl, "PNG", centerX, centerY, logoW, logoH);
+
+  doc.setFont("times","bold");
+  doc.setFontSize(18);
+  doc.text(jobName, pageW/2, centerY + logoH + 22, {align:"center"});
+
+  doc.setFont("times","normal");
+  doc.setFontSize(14);
+  doc.text("Rebate Optimizer", pageW/2, centerY + logoH + 34, {align:"center"});
+
+  // ============================================================
+  // PAGE 2 — COVER LETTER (WITH HEADER/FOOTER)
+  // ============================================================
+  doc.addPage();
+  drawPdfHeader(doc, logoDataUrl, dateStr);
+
+  doc.setFont("times","normal");
+  doc.setFontSize(11);
+  doc.setTextColor(0,0,0);
+
+  let y = 40;
+
+  doc.setFont("times","bold");
+  doc.setFontSize(12);
+  doc.text("Cover Letter", 12, y);
+  y += 10;
+
+  doc.setFont("times","normal");
+  doc.setFontSize(11);
+
+  const recipName = contact.name || "—";
+  const recipCompany = contact.company || "—";
+  const recipAddress = contact.address || "—";
+
+  doc.text(recipName, 12, y); y += 6;
+  doc.text(recipCompany, 12, y); y += 6;
+  doc.splitTextToSize(recipAddress, 180).forEach(line=>{ doc.text(line, 12, y); y += 6; });
+
+  y += 4;
+  doc.text(`Date: ${dateStr}`, 12, y); y += 10;
+
+  doc.setFont("times","bold");
+  doc.text("Re: ComEd Rebate Optimizer Summary", 12, y); y += 8;
+  doc.setFont("times","normal");
+
+  const best = LAST.best;
+  const runner = LAST.runnerUp;
+
+  const pay = best.paybackYears==null ? "—" : (Math.round(best.paybackYears*100)/100)+" years";
+
+  const bullets = [
+    `Recommended rebate path: ${best.label}`,
+    `Estimated rebate: ${money(best.rebateTotal)} | Net cost after rebates: ${money(best.netCost)}`,
+    `Watts reduced: ${Math.round(best.watts.wattsReducedTotal).toLocaleString()} W | Watts controlled: ${Math.round(best.watts.wattsControlledTotal).toLocaleString()} W`,
+    `Estimated energy savings: ${Math.round(best.energy.kwhSaved).toLocaleString()} kWh/year (~${money(best.energy.annual$)}/year)`,
+    `Simple payback: ${pay}`
+  ];
+
+  doc.text("Based on the information provided, the best option is:", 12, y); y += 7;
+
+  bullets.forEach(b=>{
+    doc.splitTextToSize("• " + b, 185).forEach(line=>{ doc.text(line, 14, y); y += 6; });
+  });
+
+  y += 6;
+  doc.text("If you would like AES to assist with product selection, paperwork, or execution, please reach out:", 12, y); y += 7;
+
+  doc.setFont("times","bold"); doc.text("All Electric Sales (AES)", 12, y); y += 6;
+  doc.setFont("times","normal");
+  doc.text("420 W North Ave, Addison, IL 60101", 12, y); y += 6;
+  doc.text("Phone: 847-830-8447", 12, y); y += 6;
+  doc.text("Email: jmitchell@allelectricsales.com", 12, y);
+
+  // Footer for cover letter page will be added at end loop
+
+  // ============================================================
+  // PAGE 3 — RESULTS SUMMARY (CARDS LIKE YOUR SCREENSHOT)
+  // ============================================================
+  doc.addPage();
+  drawPdfHeader(doc, logoDataUrl, dateStr);
+
+  // Helpers for card rendering
+  function roundRect(x,y,w,h,r, fillColor, strokeColor){
+    if(fillColor){
+      doc.setFillColor(...fillColor);
+      doc.roundedRect(x,y,w,h,r,r,"F");
     }
-    if(!window.jspdf){
-      showStatus("PDF library not loaded. Refresh and try again.", true);
-      return;
+    if(strokeColor){
+      doc.setDrawColor(...strokeColor);
+      doc.roundedRect(x,y,w,h,r,r,"S");
     }
+  }
 
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ unit:"mm", format:"letter" });
-
-    const dateStr = fmtDate(new Date());
-    const contact = LAST_CONTACT;
-
-    const logoImg = new Image();
-    logoImg.src = "aes-logo.png";
-    const logoDataUrl = await new Promise((resolve, reject)=>{
-      logoImg.onload = async ()=> resolve(await imgToDataUrl(logoImg));
-      logoImg.onerror = ()=> reject(new Error("Could not load aes-logo.png"));
-    }).catch(()=>{
-      showStatus("PDF error: could not load aes-logo.png. Ensure it exists next to index.html.", true);
-      return null;
-    });
-
-    if(!logoDataUrl) return;
-
-    // Page 1: Cover letter
-    drawPdfHeader(doc, logoDataUrl, dateStr);
-
+  function kpiTile(x,y,w,h,label,value){
+    doc.setDrawColor(217,222,227);
+    doc.setFillColor(250,250,250);
+    doc.roundedRect(x,y,w,h,3,3,"FD");
     doc.setFont("times","normal");
+    doc.setTextColor(85,85,85);
+    doc.setFontSize(9);
+    doc.text(label, x+4, y+6);
+    doc.setFont("times","bold");
+    doc.setTextColor(17,17,17);
     doc.setFontSize(11);
+    doc.text(String(value), x+4, y+14);
+  }
 
-    let y = 40;
+  function drawResultCard(yTop, tagText, tagStyle, title, breakdown, inputs, kpis){
+    // card area
+    const x = 12;
+    const w = pageW - 24;
+    const h = 54; // enough for header + KPI row
+    const r = 4;
 
+    // Background by style
+    if(tagStyle === "best"){
+      // light green tint like screenshot
+      roundRect(x,yTop,w,h,r, [246,255,250], [187,247,208]);
+    }else{
+      // light yellow tint like screenshot
+      roundRect(x,yTop,w,h,r, [255,252,235], [253,230,138]);
+    }
+
+    // Tag pill
+    const pillW = 20;
+    const pillH = 7;
+    const pillX = x + 4;
+    const pillY = yTop + 4;
+
+    if(tagStyle === "best"){
+      roundRect(pillX,pillY,pillW,pillH,3, [236,253,245], [187,247,208]);
+      doc.setTextColor(22,101,52);
+    }else{
+      roundRect(pillX,pillY,pillW+8,pillH,3, [255,251,235], [253,230,138]);
+      doc.setTextColor(146,64,14);
+    }
+    doc.setFont("times","bold");
+    doc.setFontSize(9);
+    doc.text(tagText, pillX + 3, pillY + 5);
+
+    // Title
+    doc.setTextColor(17,17,17);
     doc.setFont("times","bold");
     doc.setFontSize(12);
-    doc.text("Cover Letter", 12, y);
-    y += 10;
+    doc.text(title, x + 4 + (tagStyle==="best"? (pillW+6):(pillW+14)), yTop + 10);
 
+    // Breakdown + inputs
     doc.setFont("times","normal");
-    doc.setFontSize(11);
+    doc.setFontSize(9);
+    doc.setTextColor(85,85,85);
+    doc.text(`Breakdown: ${breakdown}`, x+4, yTop + 17);
+    doc.text(`Inputs used: ${inputs}`, x+4, yTop + 23);
 
-    const recipName = contact.name || "—";
-    const recipCompany = contact.company || "—";
-    const recipAddress = contact.address || "—";
+    // KPI tiles (5 across)
+    const tileGap = 4;
+    const tileW = (w - tileGap*4) / 5;
+    const tileH = 18;
+    const tileY = yTop + 30;
 
-    doc.text(recipName, 12, y); y += 6;
-    doc.text(recipCompany, 12, y); y += 6;
-    const addrLines = doc.splitTextToSize(recipAddress, 180);
-    addrLines.forEach(line=>{ doc.text(line, 12, y); y += 6; });
-
-    y += 4;
-    doc.text(`Date: ${dateStr}`, 12, y); y += 10;
-
-    doc.setFont("times","bold");
-    doc.text("Re: ComEd Rebate Optimizer Summary", 12, y); y += 8;
-    doc.setFont("times","normal");
-
-    const best = LAST.best;
-    const runner = LAST.runnerUp;
-    const pay = best.paybackYears==null ? "—" : (Math.round(best.paybackYears*100)/100)+" years";
-
-    const bullets = [
-      `Recommended rebate path: ${best.label}`,
-      `Estimated rebate: ${money(best.rebateTotal)} | Net cost after rebates: ${money(best.netCost)}`,
-      `Watts reduced: ${Math.round(best.watts.wattsReducedTotal).toLocaleString()} W | Watts controlled: ${Math.round(best.watts.wattsControlledTotal).toLocaleString()} W`,
-      `Estimated energy savings: ${Math.round(best.energy.kwhSaved).toLocaleString()} kWh/year (~${money(best.energy.annual$)}/year)`,
-      `Simple payback: ${pay}`
-    ];
-
-    doc.text("Based on the information provided, the best option is:", 12, y); y += 7;
-
-    bullets.forEach(b=>{
-      const lines = doc.splitTextToSize("• " + b, 185);
-      lines.forEach(line=>{ doc.text(line, 14, y); y += 6; });
+    kpis.forEach((k, i)=>{
+      const tileX = x + (tileW + tileGap)*i;
+      kpiTile(tileX, tileY, tileW, tileH, k.label, k.value);
     });
 
-    y += 6;
-    doc.text("If you would like AES to assist with product selection, paperwork, or execution, please reach out:", 12, y); y += 7;
-
-    doc.setFont("times","bold"); doc.text("All Electric Sales (AES)", 12, y); y += 6;
-    doc.setFont("times","normal");
-    doc.text("420 W North Ave, Addison, IL 60101", 12, y); y += 6;
-    doc.text("Phone: 847-830-8447", 12, y); y += 6;
-    doc.text("Email: jmitchell@allelectricsales.com", 12, y);
-
-    // Page 2: Summary blocks
-    doc.addPage();
-    drawPdfHeader(doc, logoDataUrl, dateStr);
-
-    y = 36;
-    doc.setFont("times","bold"); doc.setFontSize(12);
-    doc.text("Results Summary", 12, y); y += 10;
-
-    doc.setFont("times","normal"); doc.setFontSize(11);
-
-    function drawScenarioBlock(title, s){
-      doc.setFillColor(240,243,246);
-      doc.rect(12, y, 192, 8, "F");
-      doc.setFont("times","bold");
-      doc.text(title, 14, y+5.7);
-      y += 14;
-
-      doc.setFont("times","normal");
-      const lines = [
-        `Path: ${s.label}`,
-        `Total rebate: ${money(s.rebateTotal)}`,
-        `Net cost: ${money(s.netCost)}`,
-        `Watts reduced: ${Math.round(s.watts.wattsReducedTotal).toLocaleString()} W`,
-        `Watts controlled: ${Math.round(s.watts.wattsControlledTotal).toLocaleString()} W`,
-        `kWh saved/year: ${Math.round(s.energy.kwhSaved).toLocaleString()}`,
-        `$/year saved: ${money(s.energy.annual$)}`,
-        `Inputs: $/W reduced=${s.rateReduced} | $/W controlled=${s.rateControlled}`
-      ];
-
-      lines.forEach(t=>{
-        const wrapped = doc.splitTextToSize(t, 185);
-        wrapped.forEach(line=>{ doc.text(line, 14, y); y += 6; });
-      });
-
-      y += 6;
-    }
-
-    drawScenarioBlock("Best Option", best);
-    if(runner){
-      drawScenarioBlock("Runner-up", runner);
-    }
-
-    // footer for all pages
-    const pageCount = doc.internal.getNumberOfPages();
-    for(let i=1;i<=pageCount;i++){
-      doc.setPage(i);
-      drawPdfFooter(doc, i, pageCount);
-    }
-
-    doc.save(sanitizeFileName("AES Rebate Optimizer") + ".pdf");
+    return yTop + h + 8;
   }
+
+  // Build KPI sets matching your screenshot format
+  const bestKpis = [
+    { label:"Total rebate", value: money(best.rebateTotal) },
+    { label:"Net cost", value: money(best.netCost) },
+    { label:"Watts reduced", value: `${Math.round(best.watts.wattsReducedTotal).toLocaleString()} W` },
+    { label:"Watts controlled", value: `${Math.round(best.watts.wattsControlledTotal).toLocaleString()} W` },
+    { label:"Simple payback", value: best.paybackYears==null ? "—" : `${Math.round(best.paybackYears)} yrs` }
+  ];
+
+  const runnerKpis = runner ? [
+    { label:"Total rebate", value: money(runner.rebateTotal) },
+    { label:"Net cost", value: money(runner.netCost) },
+    { label:"Watts reduced", value: `${Math.round(runner.watts.wattsReducedTotal).toLocaleString()} W` },
+    { label:"Watts controlled", value: `${Math.round(runner.watts.wattsControlledTotal).toLocaleString()} W` },
+    { label:"Simple payback", value: runner.paybackYears==null ? "—" : `${Math.round(runner.paybackYears)} yrs` }
+  ] : null;
+
+  // Breakdown strings (like your UI)
+  const bestBreakdown = best.breakdown.map(b=>`${b.name} (${money(b.rebate)})`).join(" + ");
+  const bestInputs = `$/W reduced=${best.rateReduced} • $/W controlled=${best.rateControlled}`;
+
+  const runnerBreakdown = runner ? runner.breakdown.map(b=>`${b.name} (${money(b.rebate)})`).join(" + ") : "";
+  const runnerInputs = runner ? `$/W reduced=${runner.rateReduced} • $/W controlled=${runner.rateControlled}` : "";
+
+  let yCards = 34;
+  yCards = drawResultCard(yCards, "Best", "best", best.label, bestBreakdown, bestInputs, bestKpis);
+
+  if(runner){
+    yCards = drawResultCard(yCards, "Runner‑up", "runner", runner.label, runnerBreakdown, runnerInputs, runnerKpis);
+  }
+
+  // ============================================================
+  // PAGE 4 — BAR CHART (DOLLARS)
+  // X: Project Cost + rebate options best->worst
+  // ============================================================
+  doc.addPage();
+  drawPdfHeader(doc, logoDataUrl, dateStr);
+
+  const all = LAST.all || [];
+  // Already sorted best->worst by your optimizer
+  const labels = ["Project Cost", ...all.map((s,i)=> `${i+1}. ${s.label}`)];
+  const values = [best.projectCostTotal, ...all.map(s=> s.rebateTotal)];
+
+  // Create chart canvas
+  const canvas = document.createElement("canvas");
+  canvas.width = 1200;
+  canvas.height = 520;
+  const ctx = canvas.getContext("2d");
+
+  if(window._rebateBarChart){ window._rebateBarChart.destroy(); }
+
+  window._rebateBarChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{
+        label: "Dollars ($)",
+        data: values,
+        backgroundColor: [
+          "rgba(10,92,125,.85)",              // project cost
+          ...all.map((_,i)=> i===0 ? "rgba(34,197,94,.80)" : (i===1 ? "rgba(251,191,36,.75)" : "rgba(148,163,184,.70)"))
+        ],
+        borderColor: [
+          "rgba(10,92,125,1)",
+          ...all.map((_,i)=> i===0 ? "rgba(34,197,94,1)" : (i===1 ? "rgba(251,191,36,1)" : "rgba(148,163,184,1)"))
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: false,
+      animation: false,
+      plugins: {
+        legend: { display: false },
+        title: {
+          display: true,
+          text: "Project Cost vs Rebate Options (Best → Worst)",
+          color: "#111",
+          font: { size: 14, weight: "bold" }
+        },
+        tooltip: {
+          callbacks: {
+            label: (c)=> "$" + Number(c.raw || 0).toLocaleString()
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: "#111", font: { size: 9 } }
+        },
+        y: {
+          ticks: {
+            color: "#111",
+            callback: (v)=> "$" + Number(v).toLocaleString()
+          },
+          title: {
+            display: true,
+            text: "Dollars ($)",
+            color: "#111",
+            font: { size: 11 }
+          }
+        }
+      }
+    }
+  });
+
+  // Let the chart render
+  await new Promise(res => setTimeout(res, 50));
+
+  // Add chart image to PDF
+  const chartImg = window._rebateBarChart.toBase64Image();
+  doc.addImage(chartImg, "PNG", 12, 40, 192, 90);
+
+  // ============================================================
+  // Apply footer to pages 2+ only (skip title page)
+  // ============================================================
+  const pageCount = doc.internal.getNumberOfPages();
+  for(let i=2; i<=pageCount; i++){
+    doc.setPage(i);
+    drawPdfFooter(doc, i, pageCount);
+  }
+
+  // Save
+  doc.save(sanitizeFileName(jobName) + " - AES Rebate Optimizer.pdf");
+}
 
   // ---------- Email ----------
   function buildEmailBody(){
