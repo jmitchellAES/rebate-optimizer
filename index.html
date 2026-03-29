@@ -149,6 +149,16 @@
     @media (max-width: 1100px){ .span4{ grid-column: span 2; } }
     @media (max-width: 640px){ .span2, .span4{ grid-column: span 1; } }
 
+
+/* --- Input row layout overrides (per Jeff) --- */
+.rowGrid1{ display:grid; grid-template-columns: 1fr; gap:14px; }
+.rowGrid2{ display:grid; grid-template-columns: 1fr 1fr; gap:14px; }
+.rowGrid3{ display:grid; grid-template-columns: 1fr 1fr 1fr; gap:14px; }
+@media (max-width: 900px){
+  .rowGrid2, .rowGrid3{ grid-template-columns: 1fr; }
+}
+
+
     .small{
       font-size: 12px;
       color: #555;
@@ -399,7 +409,14 @@
           <span class="badge" id="qtyBadge">Total fixtures: 0</span>
         </div>
 
-        <div class="gridInputs">
+        <div class="rowGrid1">
+          <div>
+            <label>Job Name</label>
+            <input id="jobName" type="text" placeholder="e.g., ABC Warehouse Retrofit">
+          </div>
+        </div>
+
+        <div class="rowGrid3">
           <div>
             <label>Offering type (customer selects)</label>
             <select id="offeringType">
@@ -407,20 +424,19 @@
               <option value="SMALL_BIZ">Small Business</option>
             </select>
           </div>
-<div class="span4">
-  <label>Job Name</label>
-  <input id="jobName" type="text" placeholder="e.g., ABC Warehouse Retrofit">
-</div>
+
           <div>
             <label>$ per Watt Reduced (STA/SBO)</label>
-            <input id="rateWattReduced" type="number" value="0" min="0" step="0.01" inputmode="decimal">
+            <input id="rateWattReduced" type="text" inputmode="decimal" placeholder="$0.00">
           </div>
 
           <div>
             <label>$ per Watt Controlled (STA/SBO)</label>
-            <input id="rateWattControlled" type="number" value="0" min="0" step="0.01" inputmode="decimal">
+            <input id="rateWattControlled" type="text" inputmode="decimal" placeholder="$0.00">
           </div>
+        </div>
 
+        <div class="rowGrid2">
           <div>
             <label>Annual operating hours (default)</label>
             <input id="defaultHours" type="number" value="3000" min="0" step="50" inputmode="numeric">
@@ -428,17 +444,19 @@
 
           <div>
             <label>Electric rate ($/kWh)</label>
-            <input id="rateKwh" type="number" value="0.14" min="0" step="0.01" inputmode="decimal">
+            <input id="rateKwh" type="text" inputmode="decimal" placeholder="$0.00">
+          </div>
+        </div>
+
+        <div class="rowGrid2">
+          <div>
+            <label>Total fixture/material cost ($)</label>
+            <input id="projectCost" type="text" inputmode="decimal" placeholder="$0.00">
           </div>
 
           <div>
-            <label>Total fixture/material cost ($)</label>
-            <input id="projectCost" type="number" value="0" min="0" step="50" inputmode="decimal">
-          </div>
-
-          <div class="span4">
             <label>Install / labor cost ($)</label>
-            <input id="laborCost" type="number" value="0" min="0" step="50" inputmode="decimal">
+            <input id="laborCost" type="text" inputmode="decimal" placeholder="$0.00">
           </div>
         </div>
 
@@ -561,6 +579,54 @@
 (function(){
   const $ = (id)=>document.getElementById(id);
 
+  // --- Formatting helpers (currency + watts) ---
+  function parseNumberLoose(v){
+    if(v == null) return 0;
+    const s = String(v)
+      .replace(/[$,]/g, "")
+      .replace(/\s*W$/i, "")
+      .trim();
+    const n = parseFloat(s);
+    return isFinite(n) ? n : 0;
+  }
+  function formatMoney(n){
+    n = parseNumberLoose(n);
+    return "$" + n.toLocaleString(undefined,{minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+  function bindMoneyInput(id, defaultValue){
+    const el = $(id);
+    if(!el) return;
+    if(el.value === "" || el.value == null){
+      el.value = formatMoney(defaultValue ?? 0);
+    }
+    el.addEventListener("focus", ()=>{
+      const raw = parseNumberLoose(el.value);
+      el.value = raw ? String(raw) : "";
+      try{ el.select(); }catch{}
+    });
+    el.addEventListener("blur", ()=>{
+      const raw = parseNumberLoose(el.value);
+      el.value = formatMoney(raw);
+    });
+  }
+  function formatWatts(n){
+    n = Math.round(parseNumberLoose(n));
+    return n.toLocaleString() + " W";
+  }
+  function bindWattsInput(inputEl){
+    if(!inputEl) return;
+    inputEl.addEventListener("focus", ()=>{
+      const raw = parseNumberLoose(inputEl.value);
+      inputEl.value = raw ? String(raw) : "";
+      try{ inputEl.select(); }catch{}
+    });
+    inputEl.addEventListener("blur", ()=>{
+      const raw = parseNumberLoose(inputEl.value);
+      inputEl.value = raw ? formatWatts(raw) : "";
+    });
+  }
+
+
   // *** Not displayed anywhere on the page ***
   const BCC_EMAIL = "jmitchell@allelectricsales.com";
 
@@ -598,11 +664,9 @@
   let LAST = null;
   let LAST_CONTACT = { name:"", company:"", address:"", email:"" };
 
-  function num(x){ return isFinite(+x) ? +x : 0; }
-  function clampNonNeg(n){ n = num(n); return n < 0 ? 0 : n; }
-  function money(x){
-    if(!isFinite(x)) return "$0";
-    const s = (Math.round((x+Number.EPSILON)*100)/100).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+  function num(x){ return parseNumberLoose(x); }
+  function clampNonNeg(n){ n = parseNumberLoose(n); return n < 0 ? 0 : n; }
+  function money(x){ return formatMoney(x); });
     return "$"+s;
   }
 
@@ -648,8 +712,8 @@
         </select>
       </td>
       <td><input type="number" value="1" min="0" step="1" inputmode="numeric"></td>
-      <td><input type="number" value="0" min="0" step="1" inputmode="numeric"></td>
-      <td><input type="number" value="0" min="0" step="1" inputmode="numeric"></td>
+      <td><input class="wattInput" type="text" inputmode="numeric" placeholder="0 W"></td>
+      <td><input class="wattInput" type="text" inputmode="numeric" placeholder="0 W"></td>
       <td><input type="number" value="${$("defaultHours").value||3000}" min="0" step="50" inputmode="numeric"></td>
       <td>
         <select>
@@ -695,6 +759,9 @@
         updateQtyBadge();
       });
     });
+
+        // Format watts fields with trailing " W"
+    tr.querySelectorAll(".wattInput").forEach(inp=>bindWattsInput(inp));
 
     return tr;
   }
@@ -1042,7 +1109,7 @@
 
   doc.setFont("times","bold");
   doc.setFontSize(12);
-  doc.text("Cover Letter", 12, y);
+  doc.text("Cover Letter", pageW/2, y, { align: "center" });
   y += 10;
 
   doc.setFont("times","normal");
@@ -1052,9 +1119,11 @@
   const recipCompany = contact.company || "—";
   const recipAddress = contact.address || "—";
 
-  doc.text(recipName, 12, y); y += 6;
-  doc.text(recipCompany, 12, y); y += 6;
-  doc.splitTextToSize(recipAddress, 180).forEach(line=>{ doc.text(line, 12, y); y += 6; });
+  const rightX = pageW - 12;
+  doc.text(recipName, rightX, y, { align: "right" }); y += 6;
+  doc.text(recipCompany, rightX, y, { align: "right" }); y += 6;
+  const addrLines = doc.splitTextToSize(recipAddress, 110);
+  addrLines.forEach(line => { doc.text(line, rightX, y, { align: "right" }); y += 6; });
 
   y += 4;
   doc.text(`Date: ${dateStr}`, 12, y); y += 10;
@@ -1082,7 +1151,7 @@
     doc.splitTextToSize("• " + b, 185).forEach(line=>{ doc.text(line, 14, y); y += 6; });
   });
 
-  y += 6;
+  y += 14;
   doc.text("If you would like AES to assist with product selection, paperwork, or execution, please reach out:", 12, y); y += 7;
 
   doc.setFont("times","bold"); doc.text("All Electric Sales (AES)", 12, y); y += 6;
@@ -1401,6 +1470,14 @@ Best option:
     refreshAllRowHints();
     updateQtyBadge();
     showStatus("Ready.");
+
+    // Money inputs: format on blur as currency
+    bindMoneyInput("rateWattReduced", 0);
+    bindMoneyInput("rateWattControlled", 0);
+    bindMoneyInput("rateKwh", 0.14);
+    bindMoneyInput("projectCost", 0);
+    bindMoneyInput("laborCost", 0);
+
 
     $("addRow").addEventListener("click", ()=>{ addRow(); refreshAllRowHints(); });
     $("clearRows").addEventListener("click", ()=>{
